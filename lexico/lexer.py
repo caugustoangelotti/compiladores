@@ -1,4 +1,4 @@
-from token import Token
+from lexico.token import Token
 import auxiliares.charConstants as tipos
 
 class Lexico:
