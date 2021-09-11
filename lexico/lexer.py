@@ -216,4 +216,4 @@ class Lexico:
             elif self.estado == 22:
                 self.estado = 0
             else:
-                raise Exception("Estado não defino no analisador lexico encerrando")
+                raise Exception("Estado não definido no analisador lexico encerrando...")
