@@ -1,5 +1,5 @@
 from token import Token
-import tipos
+import auxiliares.charConstants as tipos
 
 class Lexico:
     def __init__(self, _stringArr):
