@@ -11,16 +11,16 @@ class Lexico:
     def getLine(self):
         return self.lineCount
     def is_letra(self, _char):
-        return _char in chars.ALFABETO
+        return _char in charsdic.ALFABETO
 
     def is_espaco(self, _char):
-        return _char in chars.ESPACOS
+        return _char in charsdic.ESPACOS
 
     def is_numero(self, _char):
-        return _char in chars.NUMEROS
+        return _char in charsdic.NUMEROS
 
     def is_literal(self, _char):
-        return _char in chars.LITERAIS
+        return _char in charsdic.LITERAIS
 
     def nextChar(self):
         if self.cursorPos == len(self.stringArr) - 1:
