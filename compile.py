@@ -1,4 +1,3 @@
-import sys
-import auxiliares.typeConstants as constantes
+import lexico.lexer as lx
 
-print(f"{sys.argv[1]} {constantes.TIPO_INTEIRO}")
+lex = lx.Lexico("sxxcvx")
