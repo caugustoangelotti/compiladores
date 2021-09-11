@@ -1,4 +1,4 @@
-import lexico.lexer as lx
+from lexico.lexer import Lexico as lx
 
 with open("codigo.txt", "r", encoding='utf-8') as file:
     fileToStringArr = file.read()
