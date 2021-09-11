@@ -92,7 +92,7 @@ class Lexico:
                 else:
                     if char == '.':
                         if(self.nextChar() == '.'):
-                            raise TypeError(f"Erro na declaracao de valor real na linha {self.getLine()}")
+                            raise TypeError(f'Erro na declaracao de valor real na linha {self.getLine()}')
                         else:
                             self.estado = 4
                         self.cursorStepBack()
