@@ -1,5 +1,5 @@
 from lexico.token import Token
-import auxiliares.charConstants as tipos
+import auxiliares.charConstants as chars
 
 class Lexico:
     def __init__(self, _stringArr):
@@ -11,16 +11,16 @@ class Lexico:
     def getLine(self):
         return self.lineCount
     def is_letra(self, _char):
-        return _char in tipos.ALFABETO
+        return _char in chars.ALFABETO
 
     def is_espaco(self, _char):
-        return _char in tipos.ESPACOS
+        return _char in chars.ESPACOS
 
     def is_numero(self, _char):
-        return _char in tipos.NUMEROS
+        return _char in chars.NUMEROS
 
     def is_literal(self, _char):
-        return _char in tipos.LITERAIS
+        return _char in chars.LITERAIS
 
     def nextChar(self):
         if self.cursorPos == len(self.stringArr) - 1:
