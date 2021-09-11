@@ -62,6 +62,7 @@ class Lexico:
                         numero += char
                         self.estado = 3
                     elif self.is_literal(char):
+                        #FIX: ARRUMAR BASEADO NO AUTOMATO AS OPERACOES LOGICAS
                         self.estado = 7
                     elif self.is_espaco(char):
                         if char == '\n':
