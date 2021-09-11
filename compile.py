@@ -1,9 +1,12 @@
-from lexico.lexer import Lexico as lx
+import os
+from lexico.lexer import Lexico
+
+os.system('cls')
 
 with open("codigo.txt", "r", encoding='utf-8') as file:
     fileToStringArr = file.read()
 
-lex = lx.Lexico(fileToStringArr)
+lex = Lexico(fileToStringArr)
 
 tknResponse = lex.nexToken()
 while tknResponse != None:
