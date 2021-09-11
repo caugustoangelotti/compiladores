@@ -1,0 +1,34 @@
+program teste
+	real: a,b,saldo;
+	integer: c, d;
+begin
+	read(a);
+	read(c);
+  b := a * a + a;
+  d := 25478 * c + c;
+  saldo := 10.50;
+
+  if a > b then
+  	write(a)
+  else
+  	write(b)
+  $;
+
+  if d < c then
+  	write(d)
+  else
+  	write(c)
+  $;
+
+  if d <= c then
+  	write(k)
+  else
+  	write(j)
+  $;
+
+  if d >= c then
+  	write(r)
+  else
+  	write(s)
+  $;
+end.
