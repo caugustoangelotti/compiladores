@@ -186,6 +186,8 @@ class Lexico:
                         return None
                     if char == '=':
                         self.estado = 15
+                    elif self.is_literal(char):
+                        raise Exception(f"Erro: operador de declaracao de tipo desconhecido na linha {self.getLine()}")
                     else:
                         self.estado = 16
                 elif self.estado == 15:
