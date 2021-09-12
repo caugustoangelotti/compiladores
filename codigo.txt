@@ -20,6 +20,12 @@ begin
   	write(c)
   $;
 
+  if d <> c then
+  	write(d)
+  else
+  	write(c)
+  $;
+
   if d <= c then
   	write(k)
   else
