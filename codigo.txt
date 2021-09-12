@@ -1,6 +1,6 @@
 program teste
 	real: a,b,saldo;
-	integer: c, d;
+	integer: c, d, zeka, mito;
 begin
 	read(a);
 	read(c);
@@ -15,6 +15,12 @@ begin
   $;
 
   if d < c then
+  	write(d)
+  else
+  	write(c)
+  $;
+
+  if zeka = mito then
   	write(d)
   else
   	write(c)
