@@ -2,9 +2,9 @@ from lexico.token import Token
 import auxiliares.charConstants as charsdic
 
 class Lexico:
-    def __init__(self, _stringArr):
+    def __init__(self, _charArr):
         self.cursorPos = -1
-        self.stringArr = _stringArr
+        self.charArr = _charArr
         self.estado = 0
         self.lineCount = 1
     
@@ -23,13 +23,13 @@ class Lexico:
         return _char in charsdic.LITERAIS
 
     def nextChar(self):
-        if self.cursorPos == len(self.stringArr) - 1:
+        if self.cursorPos == len(self.charArr) - 1:
             return None
         self.cursorPos += 1
-        return self.stringArr[self.cursorPos]
+        return self.charArr[self.cursorPos]
     
     def isEOF(self):
-        return self.cursorPos == len(self.stringArr)
+        return self.cursorPos == len(self.charArr)
     
     def cursorStepForward(self):
         self.cursorPos += 1
@@ -43,7 +43,7 @@ class Lexico:
     def getCurrentChar(self):
         if self.isEOF():
             return None
-        return self.stringArr[self.cursorPos]
+        return self.charArr[self.cursorPos]
     
     def nexToken(self):
         ident = ""
