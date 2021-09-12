@@ -43,10 +43,10 @@ except Exception as err:
     exit()
 
 with open(fileDir, 'r', encoding='utf-8') as file:
-    fileToStringArr = file.read()
+    fileToCharArr = file.read()
 
 
-lex = Lexico(fileToStringArr)
+lex = Lexico(fileToCharArr)
 
 with open("tokens.log.txt", 'a', encoding='utf-8') as arqvLog:
     tknResponse = lex.nexToken()
