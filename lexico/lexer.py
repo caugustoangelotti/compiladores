@@ -62,12 +62,11 @@ class Lexico:
                         numero += char
                         self.estado = 3
                     elif self.is_literal(char):
-                        #FIX: ARRUMAR AS OPERACOES LOGICAS BASEADO NO AUTOMATO
                         self.estado = 7
                     elif self.is_espaco(char):
                         if char == '\n':
                             self.lineCount += 1
-                        self.estado = 22
+                        self.estado = 23
                     else:
                         raise Exception("Caractere não reconhecido encontrado, encerrando...")
                 elif self.estado == 1:
@@ -130,17 +129,17 @@ class Lexico:
                     elif char == '<':
                         self.estado = 11
                     elif char == ':':
-                        self.estado = 14
+                        self.estado = 15
                     elif char == '+':
-                        self.estado = 17
-                    elif char == '-':
                         self.estado = 18
-                    elif char == '*':
+                    elif char == '-':
                         self.estado = 19
-                    elif char == '/':
+                    elif char == '*':
                         self.estado = 20
-                    else:
+                    elif char == '/':
                         self.estado = 21
+                    else:
+                        self.estado = 22
                 elif self.estado == 8:
                     char = self.nextChar()
                     if char == None:
@@ -160,68 +159,73 @@ class Lexico:
                     self.cursorStepBack()
                     tkn = Token(self.getCurrentChar())
                     self.estado = 0
+                    self.cursorStepForward()
                     return tkn
                 elif self.estado == 11:
                     char = self.nextChar()
                     if char == None:
                         return None
-                    if char == '=':
+                    if char == ">":
                         self.estado = 12
-                    elif self.is_literal(char):
-                        raise Exception(f"Erro: operador logico desconhecido na linha {self.getLine()}")
-                    else:
+                    elif char == "=":
                         self.estado = 13
+                    else:
+                        self.estado = 14
                 elif self.estado == 12:
-                    tkn = Token("<=")
+                    tkn = Token('<>')
                     self.estado = 0
                     self.cursorStepForward()
                     return tkn
                 elif self.estado == 13:
+                    tkn = Token('<=')
+                    self.estado = 0
+                    self.cursorStepForward()
+                    return tkn
+                elif self.estado == 14:
                     self.cursorStepBack()
                     tkn = Token(self.getCurrentChar())
                     self.estado = 0
+                    self.cursorStepForward()
                     return tkn
-                elif self.estado == 14:
-                    char = self.nextChar()
-                    if char == None:
-                        return None
-                    if char == '=':
-                        self.estado = 15
-                    elif self.is_literal(char):
-                        raise Exception(f"Erro: operador de declaracao de tipo desconhecido na linha {self.getLine()}")
-                    else:
-                        self.estado = 16
+
                 elif self.estado == 15:
+                    char = self.nextChar()
+                    if char == '=':
+                        self.estado = 16
+                    else:
+                        self.estado = 17
+                elif self.estado == 16:
                     tkn = Token(":=")
                     self.estado = 0
                     self.cursorStepForward()
                     return tkn
-                elif self.estado == 16:
+                elif self.estado == 17:
                     self.cursorStepBack()
                     tkn = Token(self.getCurrentChar())
                     self.estado = 0
-                    return tkn
-                elif self.estado == 17:
-                    tkn = Token(self.getCurrentChar())
-                    self.estado = 0
+                    self.cursorStepForward()
                     return tkn
                 elif self.estado == 18:
-                    tkn = Token(self.getCurrentChar())
+                    tkn = Token('SOMA', self.getCurrentChar())
                     self.estado = 0
                     return tkn
                 elif self.estado == 19:
-                    tkn = Token(self.getCurrentChar())
+                    tkn = Token('SUB', self.getCurrentChar())
                     self.estado = 0
                     return tkn
                 elif self.estado == 20:
-                    tkn = Token(self.getCurrentChar())
+                    tkn = Token('MULT', self.getCurrentChar())
                     self.estado = 0
                     return tkn
                 elif self.estado == 21:
-                    tkn = Token(self.getCurrentChar())
+                    tkn = Token('DIV', self.getCurrentChar())
                     self.estado = 0
                     return tkn
                 elif self.estado == 22:
+                    tkn = Token(self.getCurrentChar())
+                    self.estado = 0
+                    return tkn
+                elif self.estado == 23:
                     self.estado = 0
                 else:
                     raise Exception("Estado não definido no analisador lexico encerrando...")
