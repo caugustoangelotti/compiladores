@@ -2,12 +2,18 @@ import os
 import sys
 from lexico.lexer import Lexico
 
-#os.system('cls')
-try:
-    fileDir = sys.argv[1]
-except IndexError:
-    print("Forneca o caminho do codigo fonte ex:py compile.py C:\\Users\\...")
-    exit()
+DEV = True
+
+os.system('cls')
+
+if(DEV):
+    fileDir = "D:\\DEV\\compiladores\\codigo.txt"
+else:
+    try:
+        fileDir = sys.argv[1]
+    except IndexError:
+        print("Forneca o caminho do codigo fonte ex:py compile.py C:\\Users\\...")
+        exit()
 
 try:
     assert (fileDir != " " and fileDir != ""), "O caminho do arquivo não pode ser vazio"
@@ -15,6 +21,7 @@ except Exception as err:
     print(err)
     exit()
 
+#ISSUE: falso positivo em arquivos do mesmo diretorio ao não usar drag and drop
 try:
     if "/" in fileDir:
         fileExtension = fileDir.split("/")
@@ -35,9 +42,16 @@ except Exception as err:
     print(err)
     exit()
 
+with open(fileDir, 'r', encoding='utf-8') as file:
+    fileToStringArr = file.read()
 
-""" tknResponse = lex.nexToken()
-while tknResponse != None:
-    if(tknResponse != None):
-        print(tknResponse)
-    tknResponse = lex.nexToken() """
+
+lex = Lexico(fileToStringArr)
+
+with open("tokens.log.txt", 'w', encoding='utf-8') as arqvLog:
+    tknResponse = lex.nexToken()
+    while tknResponse != None:
+        if(tknResponse != None):
+            print(tknResponse)
+            arqvLog.writelines(f"{tknResponse.__repr__()}\n")
+        tknResponse = lex.nexToken()
