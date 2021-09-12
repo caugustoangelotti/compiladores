@@ -4,4 +4,4 @@ class Token:
         self.valor = _valor
     
     def __repr__(self) -> str:
-        return f"tkn = [{self.tipo}->{self.valor}]"
+        return f"[Tipo:[{self.tipo}] Valor:[{self.valor}]]"
