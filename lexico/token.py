@@ -5,3 +5,9 @@ class Token:
     
     def __repr__(self) -> str:
         return f"[Tipo:[{self.tipo}] Valor:[{self.valor}]]"
+    
+    def getTokenType(self):
+        return self.tipo
+    
+    def getTokenValue(self):
+        return self.valor
