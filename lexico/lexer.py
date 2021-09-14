@@ -78,7 +78,10 @@ class Lexico:
                     else:
                         self.estado = 2
                 elif self.estado == 2:
-                        tkn = Token('id', ident)
+                        if ident in charsdic.RESERVADAS:
+                            tkn = Token(ident,ident)
+                        else:
+                            tkn = Token('ident', ident)
                         ident = ""
                         self.cursorStepBack()
                         self.estado = 0
