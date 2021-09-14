@@ -7,6 +7,7 @@ class Lexico:
         self.charArr = _charArr
         self.estado = 0
         self.lineCount = 1
+        self.reservedWords = ['program', 'begin', 'end', 'if', 'then', 'else', 'read', 'write', 'real', 'integer']
     
     def getLine(self):
         return self.lineCount
@@ -78,7 +79,7 @@ class Lexico:
                     else:
                         self.estado = 2
                 elif self.estado == 2:
-                        if ident in charsdic.RESERVADAS:
+                        if ident in self.reservedWords:
                             tkn = Token(ident,ident)
                         else:
                             tkn = Token('ident', ident)
@@ -111,14 +112,14 @@ class Lexico:
                     else:
                         self.estado = 5
                 elif self.estado == 5:
-                    tkn = Token('REAL', f"{numero}.{fator}")
+                    tkn = Token('numero_real', f"{numero}.{fator}")
                     numero = ""
                     fator = ""
                     self.cursorStepBack()
                     self.estado = 0
                     return tkn
                 elif self.estado == 6:
-                    tkn = Token('INT', numero)
+                    tkn = Token('numero_int', numero)
                     numero = ""
                     self.cursorStepBack()
                     self.estado = 0
