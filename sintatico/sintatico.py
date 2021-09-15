@@ -1,5 +1,6 @@
 from lexico import lexer
 from lexico import token
+import sys
 
 class Sintatico:
     def __init__(self, _charsArray):
@@ -8,13 +9,39 @@ class Sintatico:
     
     def getNewSimbol(self):
         tkn = self.lexico.nexToken()
-        self.currentSimbol = tkn.getTokenValue()
+        self.currentSimbol = tkn.getTokenType()
         return self.currentSimbol
 
     def programa(self):
-        return
+        if(self.currentSimbol == "program"):
+            self.getNewSimbol()
+            if(self.currentSimbol() == "ident"):
+                self.corpo()
+                if(self.currentSimbol == "."):
+                    return "tudo certo"
+                else:
+                    raise Exception("Erro sintatico esperado .")
+                    exit()
+            else:
+                raise Exception("Erro sintatico esperado ident")
+                exit()
+        else:
+            raise Exception("Erro sintatico esperando program")
+            exit()
     def corpo(self):
-        return
+        self.getNewSimbol()
+        self.dc()
+        if(self.currentSimbol == "begin"):
+            self.comandos()
+            if(self.currentSimbol == "end"):
+                self.getNewSimbol()
+            else:
+                raise Exception("Erro sintatico esperado end")
+                exit()
+        else:
+            raise Exception("Erro sintatico esperado begin")
+            exit()
+
     def dc(self):
         return
     def mais_dc(self):
