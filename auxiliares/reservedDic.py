@@ -1,11 +1,10 @@
-operadores = {
+operadoresLogicos = {
     'igual' : '=',
     'diferente' : '<>',
     'maior_igual' : '>=',
     'menor_igual' : '<=',
     'maior' : '>',
     'menor' : '<',
-    'atribui_valor' : ':='
 }
 literais = {
     'dollar' : '$',
@@ -37,4 +36,7 @@ words = {
     'begin' : 'begin',
     'end' : 'end'
 
+}
+atribuicao = {
+    'atribuicao' : ':='
 }
