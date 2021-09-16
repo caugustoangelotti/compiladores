@@ -39,8 +39,13 @@ words = {
 tokenTypes = {
     'ident' : 'ident',
     'numero_int' : 'numero_int',
-    'numero_real' : 'numero_real'
+    'numero_real' : 'numero_real',
+    'multiplicacao' : 'MUL',
+    'divisao' : 'DIV',
+    'adicao' : 'ADD',
+    'subtracao' : 'SUB'
 }
+
 atribuicao = {
     'atribuicao' : ':='
 }
