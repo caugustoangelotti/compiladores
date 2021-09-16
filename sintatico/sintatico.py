@@ -1,6 +1,5 @@
 from lexico import lexer
-from lexico import token
-import sys
+from auxiliares import reservedWordsDic as reservedWords
 
 class Sintatico:
     def __init__(self, _charsArray):
@@ -43,25 +42,60 @@ class Sintatico:
             exit()
 
     def dc(self):
-        return
+        self.getNewSimbol()
+        if self.currentSimbol == 'real' or self.currentSimbol == 'integer':
+            self.dc_v()
+            self.mais_dc()
+        else:
+            return ''
+
     def mais_dc(self):
-        return
+        self.getNewSimbol()
+        if self.currentSimbol == ';':
+            self.dc()
+        else:
+            return ''
+
     def comandos(self):
-        return
+        self.comando()
+        self.mais_comandos()
+
     def mais_comandos(self):
-        return
+        self.getNewSimbol()
+        if self.currentSimbol == ';':
+            self.comandos()
+        else:
+            return ''
+
     def dc_v(self):
-        return
+        self.tipo_var()
+        if self.currentSimbol == ':':
+            self.variaveis()
+        else:
+            raise Exception("Erro sintatico esperando :")
+            exit()
     def tipo_var(self):
-        return
+        #tabela de simbolos
+        pass
     def variaveis(self):
-        return
+        self.getNewSimbol()
+        if self.currentSimbol == 'ident':
+            self.mais_var()
+        else:
+            raise Exception('Erro sintatico esperando ident')
+            exit()
     def mais_var(self):
-        return
-    def dc_v(self):
-        return
+        self.getNewSimbol()
+        if self.currentSimbol == ',':
+            self.variaveis()
+        else:
+            return ''   
     def relacao(self):
-        return
+        if self.currentSimbol in reservedWords.relacoes:
+            self.getNewSimbol()
+        else:
+            raise Exception("Esperando um operador logico")
+            exit()
     def condicao(self):
         return
     def comando(self):
