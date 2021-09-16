@@ -165,6 +165,19 @@ class Sintatico:
             self.fator()
             self.mais_fatores()
     def fator(self):
-        return
+        if self.currentSimbol == reserved.tokenTypes['ident'] or self.currentSimbol == reserved.tokenTypes['numero_int'] or self.currentSimbol == reserved.tokenTypes['numero_real']:
+            self.getNewSimbol()
+        elif self.currentSimbol == reserved.literais['abre_parenteses']:
+            self.expressao()
+            if self.currentSimbol == reserved.literais['fecha_parenteses']:
+                self.getNewSimbol()
+            else:
+                raise Exception('Erro esperado )')
+        else:
+            raise Exception('Erro esperado ident numero int ou real')
+
     def pfalsa(self):
-        return
+        if self.currentSimbol == reserved.words['else']:
+            self.comandos()
+        else:
+            return ''
