@@ -1,0 +1,2 @@
+relacoes = ['=', '<>', '>=', '<=', '>', '<']
+tipos = ['integer', 'real']
