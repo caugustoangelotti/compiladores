@@ -6,6 +6,7 @@ begin
 	read(c);
   b := a * a + a;
   d := 25478 * c + c;
+  zeka := 10 / 10;
   saldo := 10.50;
 
   if a > b then
