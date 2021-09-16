@@ -29,13 +29,17 @@ matematicos = {
 
 words = {
     'program' : 'program',
-    'ident' : 'ident', 
     'write' : 'write', 
     'read'  : 'read',
     'if' : 'if',
     'begin' : 'begin',
     'end' : 'end'
 
+}
+tokenTypes = {
+    'ident' : 'ident',
+    'numero_int' : 'numero_int',
+    'numero_real' : 'numero_real'
 }
 atribuicao = {
     'atribuicao' : ':='
