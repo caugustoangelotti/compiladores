@@ -1,7 +1,5 @@
 __pycache__/
 *.pyc
-*.log.txt
+*.txt
 auttest.py
 sinttest.py
-firstfollow.txt
-codigo.txt
