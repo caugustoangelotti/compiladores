@@ -32,6 +32,8 @@ words = {
     'write' : 'write', 
     'read'  : 'read',
     'if' : 'if',
+    'then' : 'then',
+    'else' : 'else',
     'begin' : 'begin',
     'end' : 'end'
 
@@ -40,9 +42,9 @@ tokenTypes = {
     'ident' : 'ident',
     'numero_int' : 'numero_int',
     'numero_real' : 'numero_real',
-    'multiplicacao' : 'MUL',
+    'multiplicacao' : 'MULT',
     'divisao' : 'DIV',
-    'adicao' : 'ADD',
+    'adicao' : 'SOMA',
     'subtracao' : 'SUB'
 }
 
