@@ -1,7 +1,5 @@
-import os
 from sintatico.sintatico import Sintatico
 import sys
-from lexico.lexer import Lexico
 
 DEV = True
 
