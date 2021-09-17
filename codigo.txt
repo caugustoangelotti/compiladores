@@ -1,11 +1,12 @@
 program teste
 	real: a,b,saldo;
-	integer: c, d, zeka, mito;
+	integer: c, d, zeka, teste, incre;
 begin
 	read(a);
 	read(c);
   b := a * a + a;
   d := 25478 * c + c;
+  incre := ((10) - 10);
   zeka := 10 / 10;
   saldo := 10.50;
 
@@ -21,7 +22,7 @@ begin
   	write(c)
   $;
 
-  if zeka = mito then
+  if zeka = teste then
   	write(d)
   else
   	write(c)
