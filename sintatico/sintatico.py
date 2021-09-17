@@ -1,6 +1,8 @@
 from lexico import lexer
 from auxiliares import reservedDic as reserved
 
+DEBUG = True
+
 class Sintatico:
     def __init__(self, _charsArray):
         self.lexico = lexer.Lexico(_charsArray)
@@ -9,13 +11,15 @@ class Sintatico:
     def getNewSimbol(self):
         tkn = self.lexico.nexToken()
         self.currentSimbol = tkn.getTokenType()
-        print(f'{self.currentSimbol} {tkn.getTokenValue()}]')
+        if(DEBUG):
+            print(f'type: {self.currentSimbol}  valor: {tkn.getTokenValue() if tkn.getTokenValue() != None else ""}')
         return self.currentSimbol
 
     def doSyntaxAnalise(self):
         try:
             self.getNewSimbol()
-            self.programa()
+            t = self.programa()
+            print(t)
         except Exception as err:
             print(err)
             exit()
@@ -28,7 +32,6 @@ class Sintatico:
                 self.getNewSimbol()
                 self.corpo()
                 if(self.currentSimbol == reserved.literais['ponto']):
-                    self.getNewSimbol()
                     return "tudo certo"
                 else:
                     raise Exception("Erro sintatico esperado .")
