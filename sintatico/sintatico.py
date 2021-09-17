@@ -9,14 +9,26 @@ class Sintatico:
     def getNewSimbol(self):
         tkn = self.lexico.nexToken()
         self.currentSimbol = tkn.getTokenType()
+        print(f'{self.currentSimbol} {tkn.getTokenValue()}]')
         return self.currentSimbol
 
-    def programa(self):
-        if(self.currentSimbol == reserved.words['program']):
+    def doSyntaxAnalise(self):
+        try:
             self.getNewSimbol()
-            if(self.currentSimbol() == reserved.tokenTypes['ident']):
+            self.programa()
+        except Exception as err:
+            print(err)
+            exit()
+
+
+    def programa(self):
+        if self.currentSimbol == reserved.words['program']:
+            self.getNewSimbol()
+            if self.currentSimbol == reserved.tokenTypes['ident']:
+                self.getNewSimbol()
                 self.corpo()
                 if(self.currentSimbol == reserved.literais['ponto']):
+                    self.getNewSimbol()
                     return "tudo certo"
                 else:
                     raise Exception("Erro sintatico esperado .")
@@ -25,9 +37,9 @@ class Sintatico:
         else:
             raise Exception("Erro sintatico esperando program")
     def corpo(self):
-        self.getNewSimbol()
         self.dc()
         if(self.currentSimbol == reserved.words['begin']):
+            self.getNewSimbol()
             self.comandos()
             if(self.currentSimbol == reserved.words['end']):
                 self.getNewSimbol()
@@ -37,7 +49,6 @@ class Sintatico:
             raise Exception("Erro sintatico esperado begin")
 
     def dc(self):
-        self.getNewSimbol()
         if self.currentSimbol in reserved.tipos.values():
             self.dc_v()
             self.mais_dc()
@@ -45,8 +56,8 @@ class Sintatico:
             return ''
 
     def mais_dc(self):
-        self.getNewSimbol()
         if self.currentSimbol == reserved.literais['ponto_e_virgula']:
+            self.getNewSimbol()
             self.dc()
         else:
             return ''
@@ -56,8 +67,8 @@ class Sintatico:
         self.mais_comandos()
 
     def mais_comandos(self):
-        self.getNewSimbol()
         if self.currentSimbol == reserved.literais['ponto_e_virgula']:
+            self.getNewSimbol()
             self.comandos()
         else:
             return ''
@@ -65,6 +76,7 @@ class Sintatico:
     def dc_v(self):
         self.tipo_var()
         if self.currentSimbol == reserved.literais['dois_pontos']:
+            self.getNewSimbol()
             self.variaveis()
         else:
             raise Exception("Erro sintatico esperando :")
@@ -74,14 +86,14 @@ class Sintatico:
         else:
             raise Exception("Erro esperado real ou integer")
     def variaveis(self):
-        self.getNewSimbol()
         if self.currentSimbol == reserved.tokenTypes['ident']:
+            self.getNewSimbol()
             self.mais_var()
         else:
             raise Exception('Erro sintatico esperando ident')
     def mais_var(self):
-        self.getNewSimbol()
         if self.currentSimbol == reserved.literais['virgula']:
+            self.getNewSimbol()
             self.variaveis()
         else:
             return ''   
@@ -95,30 +107,29 @@ class Sintatico:
         self.relacao()
         self.expressao()
     def comando(self):
-        self.getNewSimbol()
         if self.currentSimbol == reserved.words['read'] or self.currentSimbol == reserved.words['write']:
             self.getNewSimbol()
             if self.currentSimbol == reserved.literais['abre_parenteses']:
                 self.getNewSimbol()
-                if self.currentSimbol == reserved.tokenTypes['ident']:
+                self.variaveis()
+                if self.currentSimbol == reserved.literais['fecha_parenteses']:
                     self.getNewSimbol()
-                    if self.currentSimbol == reserved.literais['fecha_parenteses']:
-                        self.getNewSimbol()
-                    else:
-                        raise Exception('Erro esperado )')
                 else:
-                    raise Exception('Erro esperado ident')
+                    raise Exception('Erro esperado )')
             else:
                 raise Exception("Erro esperado (")
         elif self.currentSimbol == reserved.tokenTypes['ident']:
             self.getNewSimbol()
             if self.currentSimbol == reserved.atribuicao['atribuicao']:
+                self.getNewSimbol()
                 self.expressao()
             else:
                 raise Exception('Erro esperado :=')
         elif self.currentSimbol == reserved.words['if']:
+            self.getNewSimbol()
             self.condicao()
             if self.currentSimbol == reserved.words['then']:
+                self.getNewSimbol()
                 self.comandos()
                 self.pfalsa()
                 if self.currentSimbol == reserved.literais['dollar']:
@@ -138,36 +149,42 @@ class Sintatico:
         self.fator()
         self.mais_fatores()
     def op_un(self):
-        if self.currentSimbol == reserved.matematicos['menos']:
+        if self.currentSimbol == reserved.tokenTypes['subtracao']:
             self.getNewSimbol()
         else:
             return ''
     def op_add(self):
-        if self.currentSimbol == reserved.matematicos['menos'] or self.currentSimbol == reserved.matematicos['mais']:
+        if self.currentSimbol == reserved.tokenTypes['subtracao'] or self.currentSimbol == reserved.tokenTypes['adicao']:
             self.getNewSimbol()
         else:
             raise Exception('Erro esperado + ou -')
     def op_mul(self):
-        if self.currentSimbol == reserved.matematicos['mult'] or self.currentSimbol == reserved.matematicos['div']:
+        if self.currentSimbol == reserved.tokenTypes['multiplicacao'] or self.currentSimbol == reserved.tokenTypes['divisao']:
             self.getNewSimbol()
         else:
             raise Exception('Erro esperado * ou /')
+
     def outros_termos(self):
-        if self.currentSimbol == reserved.matematicos['menos'] or self.currentSimbol == reserved.matematicos['mais']:
+        if self.currentSimbol == reserved.tokenTypes['subtracao'] or self.currentSimbol == reserved.tokenTypes['adicao']:
             self.op_add()
             self.termo()
             self.outros_termos()
         else:
             return ''
+
     def mais_fatores(self):
-        if self.currentSimbol == reserved.matematicos['mult'] or self.currentSimbol == reserved.matematicos['div']:
+        if self.currentSimbol == reserved.tokenTypes['multiplicacao'] or self.currentSimbol == reserved.tokenTypes['divisao']:
             self.op_mul()
             self.fator()
             self.mais_fatores()
+        else:
+            return ''
+
     def fator(self):
         if self.currentSimbol == reserved.tokenTypes['ident'] or self.currentSimbol == reserved.tokenTypes['numero_int'] or self.currentSimbol == reserved.tokenTypes['numero_real']:
             self.getNewSimbol()
         elif self.currentSimbol == reserved.literais['abre_parenteses']:
+            self.getNewSimbol()
             self.expressao()
             if self.currentSimbol == reserved.literais['fecha_parenteses']:
                 self.getNewSimbol()
@@ -178,6 +195,7 @@ class Sintatico:
 
     def pfalsa(self):
         if self.currentSimbol == reserved.words['else']:
+            self.getNewSimbol()
             self.comandos()
         else:
             return ''
