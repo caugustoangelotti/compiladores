@@ -1,10 +1,11 @@
 import os
+from sintatico.sintatico import Sintatico
 import sys
 from lexico.lexer import Lexico
 
 DEV = True
 
-os.system('cls')
+#os.system('cls')
 
 if(DEV):
     fileDir = "D:\\DEV\\compiladores\\codigo.txt"
@@ -46,7 +47,10 @@ with open(fileDir, 'r', encoding='utf-8') as file:
     fileToCharArr = file.read()
 
 
-lex = Lexico(fileToCharArr)
+sint = Sintatico(fileToCharArr)
+sint.doSyntaxAnalise()
+
+""" lex = Lexico(fileToCharArr)
 
 with open("tokens.log.txt", 'a', encoding='utf-8') as arqvLog:
     tknResponse = lex.nexToken()
@@ -56,4 +60,4 @@ with open("tokens.log.txt", 'a', encoding='utf-8') as arqvLog:
             print(tknResponse)
             arqvLog.writelines(f"{tknResponse.__repr__()}\n")
         tknResponse = lex.nexToken()
-    arqvLog.writelines("-------------------------------\n")
+    arqvLog.writelines("-------------------------------\n") """
