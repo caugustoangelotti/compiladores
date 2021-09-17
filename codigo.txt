@@ -44,5 +44,5 @@ begin
   	write(r)
   else
   	write(s)
-  $;
+  $
 end.
