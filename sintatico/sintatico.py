@@ -12,15 +12,16 @@ class Sintatico:
         tkn = self.lexico.nexToken()
         self.currentSimbol = tkn.getTokenType()
         if(DEBUG):
-            print(f'type: {self.currentSimbol}  valor: {tkn.getTokenValue() if tkn.getTokenValue() != None else ""}')
+            tknValue = tkn.getTokenValue()
+            print(f'type: {self.currentSimbol}  valor: {tknValue if tknValue != None else ""}')
         return self.currentSimbol
 
     def doSyntaxAnalise(self):
         try:
             self.getNewSimbol()
-            t = self.programa()
-            print(t)
-        except Exception as err:
+            if self.programa():
+                print('Tudo certo')
+        except RuntimeError as err:
             print(err)
             exit()
 
@@ -32,13 +33,13 @@ class Sintatico:
                 self.getNewSimbol()
                 self.corpo()
                 if(self.currentSimbol == reserved.literais['ponto']):
-                    return "tudo certo"
+                    return True
                 else:
-                    raise Exception("Erro sintatico esperado .")
+                    raise RuntimeError("Erro sintatico esperado .")
             else:
-                raise Exception("Erro sintatico esperado ident")
+                raise RuntimeError("Erro sintatico esperado ident")
         else:
-            raise Exception("Erro sintatico esperando program")
+            raise RuntimeError("Erro sintatico esperando program")
     def corpo(self):
         self.dc()
         if(self.currentSimbol == reserved.words['begin']):
@@ -47,9 +48,9 @@ class Sintatico:
             if(self.currentSimbol == reserved.words['end']):
                 self.getNewSimbol()
             else:
-                raise Exception("Erro sintatico esperado end")
+                raise RuntimeError("Erro sintatico esperado end")
         else:
-            raise Exception("Erro sintatico esperado begin")
+            raise RuntimeError("Erro sintatico esperado begin")
 
     def dc(self):
         if self.currentSimbol in reserved.tipos.values():
@@ -82,18 +83,18 @@ class Sintatico:
             self.getNewSimbol()
             self.variaveis()
         else:
-            raise Exception("Erro sintatico esperando :")
+            raise RuntimeError("Erro sintatico esperando :")
     def tipo_var(self):
         if self.currentSimbol in reserved.tipos.values():
             self.getNewSimbol()
         else:
-            raise Exception("Erro esperado real ou integer")
+            raise RuntimeError("Erro esperado real ou integer")
     def variaveis(self):
         if self.currentSimbol == reserved.tokenTypes['ident']:
             self.getNewSimbol()
             self.mais_var()
         else:
-            raise Exception('Erro sintatico esperando ident')
+            raise RuntimeError('Erro sintatico esperando ident')
     def mais_var(self):
         if self.currentSimbol == reserved.literais['virgula']:
             self.getNewSimbol()
@@ -104,7 +105,7 @@ class Sintatico:
         if self.currentSimbol in reserved.operadoresLogicos.values():
             self.getNewSimbol()
         else:
-            raise Exception("Esperando um operador logico")
+            raise RuntimeError("Esperando um operador logico")
     def condicao(self):
         self.expressao()
         self.relacao()
@@ -118,16 +119,16 @@ class Sintatico:
                 if self.currentSimbol == reserved.literais['fecha_parenteses']:
                     self.getNewSimbol()
                 else:
-                    raise Exception('Erro esperado )')
+                    raise RuntimeError('Erro esperado )')
             else:
-                raise Exception("Erro esperado (")
+                raise RuntimeError("Erro esperado (")
         elif self.currentSimbol == reserved.tokenTypes['ident']:
             self.getNewSimbol()
             if self.currentSimbol == reserved.atribuicao['atribuicao']:
                 self.getNewSimbol()
                 self.expressao()
             else:
-                raise Exception('Erro esperado :=')
+                raise RuntimeError('Erro esperado :=')
         elif self.currentSimbol == reserved.words['if']:
             self.getNewSimbol()
             self.condicao()
@@ -138,11 +139,11 @@ class Sintatico:
                 if self.currentSimbol == reserved.literais['dollar']:
                     self.getNewSimbol()
                 else:
-                    raise Exception('Erro esperado $')
+                    raise RuntimeError('Erro esperado $')
             else:
-                raise Exception('Erro esperado then')
+                raise RuntimeError('Erro esperado then')
         else:
-            raise Exception('Erro esperando comando ou identificador')
+            raise RuntimeError('Erro esperando comando ou identificador')
                 
     def expressao(self):
         self.termo()
@@ -160,12 +161,12 @@ class Sintatico:
         if self.currentSimbol == reserved.tokenTypes['subtracao'] or self.currentSimbol == reserved.tokenTypes['adicao']:
             self.getNewSimbol()
         else:
-            raise Exception('Erro esperado + ou -')
+            raise RuntimeError('Erro esperado + ou -')
     def op_mul(self):
         if self.currentSimbol == reserved.tokenTypes['multiplicacao'] or self.currentSimbol == reserved.tokenTypes['divisao']:
             self.getNewSimbol()
         else:
-            raise Exception('Erro esperado * ou /')
+            raise RuntimeError('Erro esperado * ou /')
 
     def outros_termos(self):
         if self.currentSimbol == reserved.tokenTypes['subtracao'] or self.currentSimbol == reserved.tokenTypes['adicao']:
@@ -192,9 +193,9 @@ class Sintatico:
             if self.currentSimbol == reserved.literais['fecha_parenteses']:
                 self.getNewSimbol()
             else:
-                raise Exception('Erro esperado )')
+                raise RuntimeError('Erro esperado )')
         else:
-            raise Exception('Erro esperado ident numero int ou real')
+            raise RuntimeError('Erro esperado ident numero int ou real')
 
     def pfalsa(self):
         if self.currentSimbol == reserved.words['else']:
