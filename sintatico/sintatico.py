@@ -139,7 +139,7 @@ class Sintatico:
         if self.currentSimbol in reserved.logicTokenTypes.values():
             self.getNewSimbol()
         else:
-            raise RuntimeError("Esperando um operador logico")
+            raise RuntimeError("Erro esperando um operador logico")
     def condicao(self):
         if MAKE_TREE:
             print('<condicao>')
