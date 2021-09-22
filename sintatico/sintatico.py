@@ -102,7 +102,7 @@ class Sintatico:
         else:
             return ''   
     def relacao(self):
-        if self.currentSimbol in reserved.operadoresLogicos.values():
+        if self.currentSimbol in reserved.logicTokenTypes.values():
             self.getNewSimbol()
         else:
             raise RuntimeError("Esperando um operador logico")
@@ -124,7 +124,7 @@ class Sintatico:
                 raise RuntimeError("Erro esperado (")
         elif self.currentSimbol == reserved.tokenTypes['ident']:
             self.getNewSimbol()
-            if self.currentSimbol == reserved.atribuicao['atribuicao']:
+            if self.currentSimbol == reserved.tokenTypes['atribuicao']:
                 self.getNewSimbol()
                 self.expressao()
             else:
@@ -195,7 +195,7 @@ class Sintatico:
             else:
                 raise RuntimeError('Erro esperado )')
         else:
-            raise RuntimeError('Erro esperado ident numero int ou real')
+            raise RuntimeError('Erro esperado variavel, numero: int ou real')
 
     def pfalsa(self):
         if self.currentSimbol == reserved.words['else']:
