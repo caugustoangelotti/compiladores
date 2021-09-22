@@ -1,11 +1,9 @@
 operadoresLogicos = {
     'igual' : '=',
-    'diferente' : '<>',
-    'maior_igual' : '>=',
-    'menor_igual' : '<=',
     'maior' : '>',
     'menor' : '<',
 }
+
 literais = {
     'dollar' : '$',
     'ponto_e_virgula' : ';',
@@ -38,16 +36,36 @@ words = {
     'end' : 'end'
 
 }
+
 tokenTypes = {
     'ident' : 'ident',
+    'integer' : 'integer',
+    'real' : 'real',
     'numero_int' : 'numero_int',
     'numero_real' : 'numero_real',
     'multiplicacao' : 'MULT',
     'divisao' : 'DIV',
     'adicao' : 'SOMA',
-    'subtracao' : 'SUB'
+    'subtracao' : 'SUB',
+    'maior_igual' : 'MAIOR_IGUAL',
+    'menor_igual' : 'MENOR_IGUAL',
+    'diferente' : 'DIFERENTE',
+    'atribuicao' : 'ATRIBUICAO'
 }
 
-atribuicao = {
-    'atribuicao' : ':='
+mathTokenTypes = {
+    'multiplicacao' : 'MULT',
+    'divisao' : 'DIV',
+    'adicao' : 'SOMA',
+    'subtracao' : 'SUB',
+}
+
+logicTokenTypes = {
+    'maior_igual' : 'MAIOR_IGUAL',
+    'menor_igual' : 'MENOR_IGUAL',
+    'diferente' : 'DIFERENTE',
+    'atribuicao' : 'ATRIBUICAO',
+    'igual' : '=',
+    'maior' : '>',
+    'menor' : '<'
 }
