@@ -155,7 +155,7 @@ class Lexico:
                     else:
                         self.estado = 10
                 elif self.estado == 9:
-                    tkn = Token(">=")
+                    tkn = Token("MAIOR_IGUAL")
                     self.estado = 0
                     self.cursorStepForward()
                     return tkn
@@ -176,12 +176,12 @@ class Lexico:
                     else:
                         self.estado = 14
                 elif self.estado == 12:
-                    tkn = Token('<>')
+                    tkn = Token('DIFERENTE')
                     self.estado = 0
                     self.cursorStepForward()
                     return tkn
                 elif self.estado == 13:
-                    tkn = Token('<=')
+                    tkn = Token('MENOR_IGUAL')
                     self.estado = 0
                     self.cursorStepForward()
                     return tkn
@@ -199,7 +199,7 @@ class Lexico:
                     else:
                         self.estado = 17
                 elif self.estado == 16:
-                    tkn = Token(":=")
+                    tkn = Token("ATRIBUICAO")
                     self.estado = 0
                     self.cursorStepForward()
                     return tkn
