@@ -1,16 +1,22 @@
+from semantico.simbolo import Simbolo
+from semantico.tabelaSimbolos import TabelaSimbolos
 from lexico import lexer
 from auxiliares import reservedDic as reserved
 
-DEBUG = False
-MAKE_TREE = True
+DEBUG = True
+MAKE_TREE = False
 
 class Sintatico:
     def __init__(self, _charsArray):
         self.lexico = lexer.Lexico(_charsArray)
         self.currentSimbol = ""
+        self.tabelaSimbolo = TabelaSimbolos()
+        self.varType = ""
+        self.currentToken  = None
     
     def getNewSimbol(self):
         tkn = self.lexico.nexToken()
+        self.currentToken = tkn
         self.currentSimbol = tkn.getTokenType()
         if(DEBUG):
             tknValue = tkn.getTokenValue()
@@ -111,6 +117,11 @@ class Sintatico:
             print('<tipo_var>')
 
         if self.currentSimbol in reserved.tipos.values():
+            if self.currentSimbol == 'integer':
+                self.varType = reserved.tokenTypes['integer']
+            else:
+                self.varType = reserved.tokenTypes['real']
+
             self.getNewSimbol()
         else:
             raise RuntimeError("Erro esperado real ou integer")
@@ -119,6 +130,11 @@ class Sintatico:
             print('<variaveis>')
 
         if self.currentSimbol == reserved.tokenTypes['ident']:
+            print(self.tabelaSimbolo.containsKey(self.currentToken.getTokenValue()))
+            if self.tabelaSimbolo.containsKey(self.currentToken.getTokenValue()):
+                raise RuntimeError('Erro semantico varivael ja declarada!!!!')
+            else:
+                self.tabelaSimbolo.addSymbol(self.currentToken.getTokenValue(), Simbolo(self.currentToken.getTokenValue(), self.varType))
             self.getNewSimbol()
             self.mais_var()
         else:
@@ -154,7 +170,11 @@ class Sintatico:
             self.getNewSimbol()
             if self.currentSimbol == reserved.literais['abre_parenteses']:
                 self.getNewSimbol()
-                self.variaveis()
+                if self.currentSimbol == reserved.tokenTypes['ident']:
+                    self.getNewSimbol()
+                    #self.variaveis()
+                else:
+                    raise RuntimeError('Erro esperado identificador')
                 if self.currentSimbol == reserved.literais['fecha_parenteses']:
                     self.getNewSimbol()
                 else:
