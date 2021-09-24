@@ -124,7 +124,7 @@ class Sintatico:
 
             self.getNewSimbol()
         else:
-            raise RuntimeError("Erro esperado real ou integer")
+            raise RuntimeError("Erro sintatico esperado real ou integer")
     def variaveis(self):
         if MAKE_TREE:
             print('<variaveis>')
@@ -138,7 +138,7 @@ class Sintatico:
             self.getNewSimbol()
             self.mais_var()
         else:
-            raise RuntimeError('Erro sintatico esperando ident')
+            raise RuntimeError('Erro sintatico sintatico esperando ident')
     def mais_var(self):
         if MAKE_TREE:
             print('<mais_var>')
@@ -155,7 +155,7 @@ class Sintatico:
         if self.currentSimbol in reserved.logicTokenTypes.values():
             self.getNewSimbol()
         else:
-            raise RuntimeError("Erro esperando um operador logico")
+            raise RuntimeError("Erro sintatico esperando um operador logico")
     def condicao(self):
         if MAKE_TREE:
             print('<condicao>')
@@ -174,23 +174,23 @@ class Sintatico:
                     if self.tabelaSimbolo.containsKey(self.currentToken.getTokenValue()):
                         self.getNewSimbol()
                     else:
-                        raise RuntimeError("Erro semantico tentando atribuir ou ler variavel não declarada")
+                        raise RuntimeError(f"Erro semantico tentando atribuir ou ler variavel não declarada")
                     #self.variaveis()
                 else:
-                    raise RuntimeError('Erro esperado identificador')
+                    raise RuntimeError('Erro sintatico esperado identificador')
                 if self.currentSimbol == reserved.literais['fecha_parenteses']:
                     self.getNewSimbol()
                 else:
-                    raise RuntimeError('Erro esperado )')
+                    raise RuntimeError('Erro sintatico esperado )')
             else:
-                raise RuntimeError("Erro esperado (")
+                raise RuntimeError("Erro sintatico esperado (")
         elif self.currentSimbol == reserved.tokenTypes['ident']:
             self.getNewSimbol()
             if self.currentSimbol == reserved.tokenTypes['atribuicao']:
                 self.getNewSimbol()
                 self.expressao()
             else:
-                raise RuntimeError('Erro esperado :=')
+                raise RuntimeError('Erro sintatico esperado :=')
         elif self.currentSimbol == reserved.words['if']:
             self.getNewSimbol()
             self.condicao()
@@ -201,11 +201,11 @@ class Sintatico:
                 if self.currentSimbol == reserved.literais['dollar']:
                     self.getNewSimbol()
                 else:
-                    raise RuntimeError('Erro esperado $')
+                    raise RuntimeError('Erro sintatico esperado $')
             else:
-                raise RuntimeError('Erro esperado then')
+                raise RuntimeError('Erro sintatico esperado then')
         else:
-            raise RuntimeError('Erro esperando comando ou identificador')
+            raise RuntimeError('Erro sintatico esperando comando ou identificador')
                 
     def expressao(self):
         if MAKE_TREE:
@@ -234,7 +234,7 @@ class Sintatico:
         if self.currentSimbol == reserved.tokenTypes['subtracao'] or self.currentSimbol == reserved.tokenTypes['adicao']:
             self.getNewSimbol()
         else:
-            raise RuntimeError('Erro esperado + ou -')
+            raise RuntimeError('Erro sintatico esperado + ou -')
     def op_mul(self):
         if MAKE_TREE:
             print('<op_mul>')
@@ -242,7 +242,7 @@ class Sintatico:
         if self.currentSimbol == reserved.tokenTypes['multiplicacao'] or self.currentSimbol == reserved.tokenTypes['divisao']:
             self.getNewSimbol()
         else:
-            raise RuntimeError('Erro esperado * ou /')
+            raise RuntimeError('Erro sintatico esperado * ou /')
 
     def outros_termos(self):
         if MAKE_TREE:
@@ -281,9 +281,9 @@ class Sintatico:
             if self.currentSimbol == reserved.literais['fecha_parenteses']:
                 self.getNewSimbol()
             else:
-                raise RuntimeError('Erro esperado )')
+                raise RuntimeError('Erro sintatico esperado )')
         else:
-            raise RuntimeError('Erro esperado variavel, numero: int ou real')
+            raise RuntimeError('Erro sintatico esperado variavel, numero: int ou real')
 
     def pfalsa(self):
         if MAKE_TREE:
