@@ -4,6 +4,9 @@ class Simbolo:
         self.varName = _varName
         self.varType = _varType
 
+    def __repr__(self) -> str:
+        return f"@<varName: {self.varName} varType: {self.varType}>"
+
     def getVarName(self):
         return self.varName
 
