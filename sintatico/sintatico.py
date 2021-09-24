@@ -271,6 +271,9 @@ class Sintatico:
             print('<fator>')
 
         if self.currentSimbol == reserved.tokenTypes['ident'] or self.currentSimbol == reserved.tokenTypes['numero_int'] or self.currentSimbol == reserved.tokenTypes['numero_real']:
+            if self.currentSimbol == reserved.tokenTypes['ident']:
+                if not self.tabelaSimbolo.containsKey(self.currentToken.getTokenValue()):
+                    raise RuntimeError("Erro semantico operacoes com variaveis não declaradas")
             self.getNewSimbol()
         elif self.currentSimbol == reserved.literais['abre_parenteses']:
             self.getNewSimbol()
