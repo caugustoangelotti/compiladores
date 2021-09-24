@@ -171,7 +171,10 @@ class Sintatico:
             if self.currentSimbol == reserved.literais['abre_parenteses']:
                 self.getNewSimbol()
                 if self.currentSimbol == reserved.tokenTypes['ident']:
-                    self.getNewSimbol()
+                    if self.tabelaSimbolo.containsKey(self.currentToken.getTokenValue()):
+                        self.getNewSimbol()
+                    else:
+                        raise RuntimeError("Erro semantico tentando atribuir ou ler variavel não declarada")
                     #self.variaveis()
                 else:
                     raise RuntimeError('Erro esperado identificador')
