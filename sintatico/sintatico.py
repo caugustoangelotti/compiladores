@@ -3,7 +3,7 @@ from semantico.tabelaSimbolos import TabelaSimbolos
 from lexico import lexer
 from auxiliares import reservedDic as reserved
 
-DEBUG = True
+DEBUG = False
 MAKE_TREE = False
 
 class Sintatico:
@@ -19,14 +19,14 @@ class Sintatico:
     
     def geraTemp(self):
         self.temp += 1
-        return 't' + self.temp
+        return 't' + str(self.temp)
     
-    def quaduplaNewLine(self):
+    def getQuaduplaNewLine(self):
         self.linhaQuadupla += 1
         return self.linhaQuadupla
 
-    def geraCodigo(self, linha, op, arg1, arg2,result):
-        self.codigoIntermediario += f"<{linha};{op};{arg1};{arg2};{result}>\n"
+    def geraCodigo(self, op, arg1, arg2,result):
+        self.codigoIntermediario += f"<{self.getQuaduplaNewLine()};{op};{arg1};{arg2};{result}>\n"
 
     def getNewSimbol(self):
         tkn = self.lexico.nexToken()
@@ -41,7 +41,9 @@ class Sintatico:
         try:
             self.getNewSimbol()
             if self.programa():
-                print('Analise sintatica completada')
+                print('Analise sintatica e semantica completada')
+                print('###GERANDO_CODIGO_INTERMEDIARIO')
+                print(self.codigoIntermediario)
         except RuntimeError as err:
             print(err)
             exit()
@@ -144,11 +146,16 @@ class Sintatico:
             print('<variaveis>')
 
         if self.currentSimbol == reserved.tokenTypes['ident']:
-            print(self.tabelaSimbolo.containsKey(self.currentToken.getTokenValue()))
             if self.tabelaSimbolo.containsKey(self.currentToken.getTokenValue()):
                 raise RuntimeError('Erro semantico varivael ja declarada!!!!')
             else:
                 self.tabelaSimbolo.addSymbol(self.currentToken.getTokenValue(), Simbolo(self.currentToken.getTokenValue(), self.varType))
+                if self.varType == 'integer':
+                    self.geraCodigo('ALME', "0", "", self.currentToken.getTokenValue())
+                else:
+                    self.geraCodigo('ALME', "0.0", "", self.currentToken.getTokenValue())
+
+
             self.getNewSimbol()
             self.mais_var()
         else:
@@ -181,11 +188,16 @@ class Sintatico:
         if MAKE_TREE:
             print('<comando>')
         if self.currentSimbol == reserved.words['read'] or self.currentSimbol == reserved.words['write']:
+            commandTkn = self.currentToken
             self.getNewSimbol()
             if self.currentSimbol == reserved.literais['abre_parenteses']:
                 self.getNewSimbol()
                 if self.currentSimbol == reserved.tokenTypes['ident']:
                     if self.tabelaSimbolo.containsKey(self.currentToken.getTokenValue()):
+                        if commandTkn.getTokenType() == 'read':
+                            self.geraCodigo('read', "", "", self.currentToken.getTokenValue())
+                        else:
+                            self.geraCodigo('write', self.currentToken.getTokenValue(), "", "")
                         self.getNewSimbol()
                     else:
                         raise RuntimeError(f"Erro semantico tentando atribuir ou ler variavel não declarada")
@@ -199,10 +211,12 @@ class Sintatico:
             else:
                 raise RuntimeError("Erro sintatico esperado (")
         elif self.currentSimbol == reserved.tokenTypes['ident']:
+            identTkn = self.currentToken
             self.getNewSimbol()
             if self.currentSimbol == reserved.tokenTypes['atribuicao']:
                 self.getNewSimbol()
-                self.expressao()
+                expressaoDir = self.expressao()
+                self.geraCodigo(':=', expressaoDir, "", identTkn.getTokenValue())
             else:
                 raise RuntimeError('Erro sintatico esperado :=')
         elif self.currentSimbol == reserved.words['if']:
@@ -224,15 +238,22 @@ class Sintatico:
     def expressao(self):
         if MAKE_TREE:
             print('<expressao>')
-        self.termo()
-        self.outros_termos()
+        termoDir = self.termo()
+        outrosTermosDir = self.outros_termos(termoDir)
+        return outrosTermosDir
+
     def termo(self):
         if MAKE_TREE:
             print('<termo>')
 
-        self.op_un()
-        self.fator()
-        self.mais_fatores()
+        if self.currentSimbol == reserved.tokenTypes['subtracao']:
+            pass
+        else:
+            pass
+        #self.op_un()
+        termoDir = self.fator()
+        maisFatoresDir = self.mais_fatores(termoDir)
+        return maisFatoresDir
     def op_un(self):
         if MAKE_TREE:
             print('<op_un>')
@@ -258,27 +279,44 @@ class Sintatico:
         else:
             raise RuntimeError('Erro sintatico esperado * ou /')
 
-    def outros_termos(self):
+    def outros_termos(self, outros_termosEsq):
         if MAKE_TREE:
             print('<outros_termos>')
 
         if self.currentSimbol == reserved.tokenTypes['subtracao'] or self.currentSimbol == reserved.tokenTypes['adicao']:
-            self.op_add()
-            self.termo()
-            self.outros_termos()
+            #self.op_add()
+            operando = self.currentToken.getTokenType()
+            self.getNewSimbol()
+            termoDir = self.termo()
+            outros_termos1Dir = self.outros_termos(termoDir)
+            outros_termosDir = self.geraTemp()
+            if operando == 'SOMA':
+                self.geraCodigo('+', outros_termosEsq, outros_termos1Dir, outros_termosDir)
+                return outros_termosDir
+            else:
+                return outros_termosDir
         else:
-            return ''
+            return outros_termosEsq
 
-    def mais_fatores(self):
+    def mais_fatores(self,mais_fatoresEsq):
         if MAKE_TREE:
             print('<mais_fatores>')
 
         if self.currentSimbol == reserved.tokenTypes['multiplicacao'] or self.currentSimbol == reserved.tokenTypes['divisao']:
-            self.op_mul()
-            self.fator()
-            self.mais_fatores()
+            #self.op_mul()
+            operando = self.currentToken.getTokenType()
+            self.getNewSimbol()
+            fatorDir = self.fator()
+            mais_fatores1Dir = self.mais_fatores(fatorDir)
+            mais_fatoresDir = self.geraTemp()
+            if operando == 'MULT':
+                self.geraCodigo('*', mais_fatoresEsq, mais_fatores1Dir, mais_fatoresDir)
+                return mais_fatoresDir
+            else:
+                self.geraCodigo('/', mais_fatoresEsq, mais_fatores1Dir, mais_fatoresDir)
+                return mais_fatoresDir
         else:
-            return ''
+            return mais_fatoresEsq
 
     def fator(self):
         if MAKE_TREE:
@@ -288,12 +326,20 @@ class Sintatico:
             if self.currentSimbol == reserved.tokenTypes['ident']:
                 if not self.tabelaSimbolo.containsKey(self.currentToken.getTokenValue()):
                     raise RuntimeError("Erro semantico operacoes com variaveis não declaradas")
-            self.getNewSimbol()
+                ident = self.currentToken.getTokenValue()
+                self.getNewSimbol()
+                return ident
+            else:
+                number = self.currentToken.getTokenValue()
+                self.getNewSimbol()
+                return number
+
         elif self.currentSimbol == reserved.literais['abre_parenteses']:
             self.getNewSimbol()
-            self.expressao()
+            expressaoDir = self.expressao()
             if self.currentSimbol == reserved.literais['fecha_parenteses']:
                 self.getNewSimbol()
+                return expressaoDir
             else:
                 raise RuntimeError('Erro sintatico esperado )')
         else:
