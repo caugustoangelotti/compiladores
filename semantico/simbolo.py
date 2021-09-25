@@ -1,4 +1,3 @@
-from lexico.token import Token
 class Simbolo:
     def __init__(self, _varName, _varType) -> None:
         self.varName = _varName
