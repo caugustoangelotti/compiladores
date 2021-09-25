@@ -13,7 +13,21 @@ class Sintatico:
         self.tabelaSimbolo = TabelaSimbolos()
         self.varType = ""
         self.currentToken  = None
+        self.temp = 0
+        self.linhaQuadupla = -1
+        self.codigoIntermediario = "<linha;operacao;arg1;arg2;result>\n"
     
+    def geraTemp(self):
+        self.temp += 1
+        return 't' + self.temp
+    
+    def quaduplaNewLine(self):
+        self.linhaQuadupla += 1
+        return self.linhaQuadupla
+
+    def geraCodigo(self, linha, op, arg1, arg2,result):
+        self.codigoIntermediario += f"<{linha};{op};{arg1};{arg2};{result}>\n"
+
     def getNewSimbol(self):
         tkn = self.lexico.nexToken()
         self.currentToken = tkn
