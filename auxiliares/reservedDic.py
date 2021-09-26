@@ -27,6 +27,8 @@ matematicos = {
 
 words = {
     'program' : 'program',
+    'integer' : 'integer',
+    'real' : 'real',
     'write' : 'write', 
     'read'  : 'read',
     'if' : 'if',
