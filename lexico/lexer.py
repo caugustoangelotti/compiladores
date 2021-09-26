@@ -150,8 +150,6 @@ class Lexico:
                         return None
                     if char == '=':
                         self.estado = 9
-                    elif self.is_literal(char):
-                        raise Exception(f"Erro: operador logico desconhecido na linha {self.getLine()}")
                     else:
                         self.estado = 10
                 elif self.estado == 9:
