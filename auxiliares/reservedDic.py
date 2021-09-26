@@ -66,7 +66,6 @@ logicTokenTypes = {
     'maior_igual' : 'MAIOR_IGUAL',
     'menor_igual' : 'MENOR_IGUAL',
     'diferente' : 'DIFERENTE',
-    'atribuicao' : 'ATRIBUICAO',
     'igual' : '=',
     'maior' : '>',
     'menor' : '<'
