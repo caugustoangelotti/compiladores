@@ -62,7 +62,6 @@ class Sintatico:
             print(err)
             exit()
 
-
     def programa(self):
         if MAKE_TREE:
             print('<programa>')
@@ -80,6 +79,7 @@ class Sintatico:
                 raise RuntimeError("Erro sintatico esperado ident")
         else:
             raise RuntimeError("Erro sintatico esperando program")
+
     def corpo(self):
         if MAKE_TREE:
             print('<corpo>')
@@ -142,6 +142,7 @@ class Sintatico:
             self.variaveis()
         else:
             raise RuntimeError("Erro sintatico esperando :")
+
     def tipo_var(self):
         if MAKE_TREE:
             print('<tipo_var>')
@@ -155,6 +156,7 @@ class Sintatico:
             self.getNewSimbol()
         else:
             raise RuntimeError("Erro sintatico esperado real ou integer")
+
     def variaveis(self):
         if MAKE_TREE:
             print('<variaveis>')
@@ -164,6 +166,7 @@ class Sintatico:
             self.mais_var()
         else:
             raise RuntimeError('Erro sintatico sintatico esperando ident')
+
     def mais_var(self):
         if MAKE_TREE:
             print('<mais_var>')
@@ -172,7 +175,8 @@ class Sintatico:
             self.getNewSimbol()
             self.variaveis()
         else:
-            return ''   
+            return ''
+
     def relacao(self):
         if MAKE_TREE:
             print('<relacao>')
@@ -197,7 +201,6 @@ class Sintatico:
             if self.currentSimbol == reserved.literais['abre_parenteses']:
                 self.getNewSimbol()
                 if self.currentSimbol == reserved.tokenTypes['ident']:
-
                     self.getNewSimbol()
                 else:
                     raise RuntimeError('Erro sintatico esperado identificador')
@@ -243,6 +246,7 @@ class Sintatico:
         self.op_un()
         self.fator()
         self.mais_fatores()
+
     def op_un(self):
         if MAKE_TREE:
             print('<op_un>')
@@ -251,6 +255,7 @@ class Sintatico:
             self.getNewSimbol()
         else:
             return ''
+
     def op_add(self):
         if MAKE_TREE:
             print('<op_add>')
@@ -259,6 +264,7 @@ class Sintatico:
             self.getNewSimbol()
         else:
             raise RuntimeError('Erro sintatico esperado + ou -')
+
     def op_mul(self):
         if MAKE_TREE:
             print('<op_mul>')
@@ -273,7 +279,6 @@ class Sintatico:
             print('<outros_termos>')
 
         if self.currentSimbol == reserved.tokenTypes['subtracao'] or self.currentSimbol == reserved.tokenTypes['adicao']:
-            #self.getNewSimbol()
             self.op_add()
             self.termo()
             self.outros_termos()
@@ -285,7 +290,6 @@ class Sintatico:
             print('<mais_fatores>')
 
         if self.currentSimbol == reserved.tokenTypes['multiplicacao'] or self.currentSimbol == reserved.tokenTypes['divisao']:
-            #self.getNewSimbol()
             self.op_mul()
             self.fator()
             self.mais_fatores()
@@ -297,10 +301,7 @@ class Sintatico:
             print('<fator>')
 
         if self.currentSimbol == reserved.tokenTypes['ident'] or self.currentSimbol == reserved.tokenTypes['numero_int'] or self.currentSimbol == reserved.tokenTypes['numero_real']:
-            if self.currentSimbol == reserved.tokenTypes['ident']:
-                self.getNewSimbol()
-            else:
-                self.getNewSimbol()
+            self.getNewSimbol()
 
         elif self.currentSimbol == reserved.literais['abre_parenteses']:
             self.getNewSimbol()
