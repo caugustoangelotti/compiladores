@@ -81,10 +81,12 @@ class Lexico:
                 elif self.estado == 2:
                         if ident in self.reservedWords:
                             tkn = Token(ident,ident)
+                            self.cursorStepBack()
                         else:
                             tkn = Token('ident', ident)
+                            self.cursorStepBack()
                         ident = ""
-                        self.cursorStepBack()
+                        #self.cursorStepBack()
                         self.estado = 0
                         return tkn
                 elif self.estado == 3:
@@ -199,7 +201,7 @@ class Lexico:
                 elif self.estado == 16:
                     tkn = Token("ATRIBUICAO")
                     self.estado = 0
-                    #self.cursorStepForward()
+                    #elf.cursorStepForward()
                     return tkn
                 elif self.estado == 17:
                     self.cursorStepBack()
