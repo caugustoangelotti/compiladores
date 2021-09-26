@@ -155,13 +155,13 @@ class Lexico:
                 elif self.estado == 9:
                     tkn = Token("MAIOR_IGUAL")
                     self.estado = 0
-                    self.cursorStepForward()
+                    #self.cursorStepForward()
                     return tkn
                 elif self.estado == 10:
                     self.cursorStepBack()
                     tkn = Token(self.getCurrentChar())
                     self.estado = 0
-                    self.cursorStepForward()
+                    #self.cursorStepForward()
                     return tkn
                 elif self.estado == 11:
                     char = self.nextChar()
@@ -176,18 +176,18 @@ class Lexico:
                 elif self.estado == 12:
                     tkn = Token('DIFERENTE')
                     self.estado = 0
-                    self.cursorStepForward()
+                    #self.cursorStepForward()
                     return tkn
                 elif self.estado == 13:
                     tkn = Token('MENOR_IGUAL')
                     self.estado = 0
-                    self.cursorStepForward()
+                    #self.cursorStepForward()
                     return tkn
                 elif self.estado == 14:
                     self.cursorStepBack()
                     tkn = Token(self.getCurrentChar())
                     self.estado = 0
-                    self.cursorStepForward()
+                    #self.cursorStepForward()
                     return tkn
 
                 elif self.estado == 15:
@@ -199,13 +199,13 @@ class Lexico:
                 elif self.estado == 16:
                     tkn = Token("ATRIBUICAO")
                     self.estado = 0
-                    self.cursorStepForward()
+                    #self.cursorStepForward()
                     return tkn
                 elif self.estado == 17:
                     self.cursorStepBack()
                     tkn = Token(self.getCurrentChar())
                     self.estado = 0
-                    self.cursorStepForward()
+                    #self.cursorStepForward()
                     return tkn
                 elif self.estado == 18:
                     tkn = Token('SOMA', self.getCurrentChar())
