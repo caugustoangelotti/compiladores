@@ -3,7 +3,7 @@ from semantico.tabelaSimbolos import TabelaSimbolos
 from lexico import lexer
 from auxiliares import reservedDic as reserved
 
-DEBUG = True
+DEBUG = False
 MAKE_TREE = False
 PRINT_SYMBOLTABLE = False
 
