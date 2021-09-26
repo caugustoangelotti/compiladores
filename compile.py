@@ -1,4 +1,5 @@
 from sintatico.sintatico import Sintatico
+from lexico.lexer import Lexico
 import sys
 
 DEV = True
@@ -48,9 +49,11 @@ with open(fileDir, 'r', encoding='utf-8') as file:
 sint = Sintatico(fileToCharArr)
 sint.doSyntaxAnalise()
 
-""" lex = Lexico(fileToCharArr)
 
-with open("tokens.log.txt", 'a', encoding='utf-8') as arqvLog:
+"""
+lex = Lexico(fileToCharArr)
+
+ with open("tokens.log.txt", 'a', encoding='utf-8') as arqvLog:
     tknResponse = lex.nexToken()
     arqvLog.writelines("###############################\n")
     while tknResponse != None:
