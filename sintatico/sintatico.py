@@ -1,4 +1,3 @@
-from functools import singledispatch
 from semantico.simbolo import Simbolo
 from semantico.tabelaSimbolos import TabelaSimbolos
 from lexico import lexer
@@ -131,7 +130,6 @@ class Sintatico:
         self.comando()
         self.mais_comandos()
 
-
     def mais_comandos(self):
         if MAKE_TREE:
             print('<mais_comandos>')
@@ -221,7 +219,9 @@ class Sintatico:
         exp1Dir = self.expressao()
         relacaoDir = self.relacao()
         exp2Dir = self.expressao()
-        return [relacaoDir, exp1Dir, exp2Dir]
+        condicaoDir = self.geraTemp()
+        self.geraCodigo(relacaoDir, exp1Dir, exp2Dir, condicaoDir)
+        return condicaoDir
 
     def comando(self):
         if MAKE_TREE:
@@ -264,13 +264,10 @@ class Sintatico:
         elif self.currentSimbol == reserved.words['if']:
             self.getNewSimbol()
             condicaoDir = self.condicao()
-            temporario = self.geraTemp()
             if self.currentSimbol == reserved.words['then']:
                 self.getNewSimbol()
-                self.geraCodigo(condicaoDir[0], condicaoDir[1], condicaoDir[2], temporario)
-                self.geraCodigo('JF', temporario, '', '')
+                self.geraCodigo('JF', condicaoDir, '', '')
                 self.comandos()
-                self.geraCodigo('goto', '', '', '')
                 self.pfalsa()
                 if self.currentSimbol == reserved.literais['dollar']:
                     self.getNewSimbol()
@@ -409,7 +406,7 @@ class Sintatico:
 
         if self.currentSimbol == reserved.words['else']:
             self.getNewSimbol()
+            self.geraCodigo('goto', '', '', '')
             self.comandos()
-            return self.linhaQuadupla
         else:
             return ''
