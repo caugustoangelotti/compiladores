@@ -4,7 +4,7 @@ from semantico.tabelaSimbolos import TabelaSimbolos
 from lexico import lexer
 from auxiliares import reservedDic as reserved
 
-DEBUG = True
+DEBUG = False
 MAKE_TREE = False
 PRINT_SYMBOLTABLE = False
 
@@ -75,17 +75,18 @@ class Sintatico:
             if self.currentSimbol == reserved.tokenTypes['ident']:
                 if self.symbolTableContais(self.currentToken.getTokenValue):
                     raise RuntimeError("Identificar do programa não pode ser uma palavra reservada")
+                self.tabelaSimbolo.addSymbol(self.currentToken.getTokenValue(), Simbolo(self.currentToken.getTokenValue(), 'programIdentifier'))
                 self.geraCodigo('programname', self.currentToken.getTokenValue(), "", "")
                 self.getNewSimbol()
                 self.corpo()
                 if(self.currentSimbol == reserved.literais['ponto']):
                     return True
                 else:
-                    raise RuntimeError("Erro sintatico esperado .")
+                    raise RuntimeError(f"Erro sintatico esperado . na linha {self.lexico.lineCount}")
             else:
-                raise RuntimeError("Erro sintatico esperado ident")
+                raise RuntimeError(f"Erro sintatico esperado ident na linha {self.lexico.lineCount}")
         else:
-            raise RuntimeError("Erro sintatico esperando program")
+            raise RuntimeError(f"Erro sintatico esperando program na linha {self.lexico.lineCount}")
 
     def corpo(self):
         if MAKE_TREE:
@@ -99,9 +100,9 @@ class Sintatico:
                 self.getNewSimbol()
                 self.geraCodigo('PARA','','','')
             else:
-                raise RuntimeError("Erro sintatico esperado end")
+                raise RuntimeError(f"Erro sintatico esperado end na linha {self.lexico.lineCount}")
         else:
-            raise RuntimeError("Erro sintatico esperado begin")
+            raise RuntimeError(f"Erro sintatico esperado begin na linha {self.lexico.lineCount}")
 
     def dc(self):
         if MAKE_TREE:
@@ -129,6 +130,7 @@ class Sintatico:
 
         self.comando()
         self.mais_comandos()
+
 
     def mais_comandos(self):
         if MAKE_TREE:
@@ -163,7 +165,7 @@ class Sintatico:
 
             self.getNewSimbol()
         else:
-            raise RuntimeError("Erro sintatico esperado real ou integer")
+            raise RuntimeError(f"Erro sintatico esperado real ou integer na linha {self.lexico.lineCount}")
 
     def variaveis(self):
         if MAKE_TREE:
@@ -181,7 +183,7 @@ class Sintatico:
             self.getNewSimbol()
             self.mais_var()
         else:
-            raise RuntimeError('Erro sintatico sintatico esperando ident')
+            raise RuntimeError(f'Erro sintatico sintatico esperando ident na linha {self.lexico.lineCount}')
 
     def mais_var(self):
         if MAKE_TREE:
@@ -198,16 +200,28 @@ class Sintatico:
             print('<relacao>')
 
         if self.currentSimbol in reserved.logicTokenTypes.values():
+            operadorLogico = self.currentToken
+            if operadorLogico.getTokenType() == 'MAIOR_IGUAL':
+                operadorLogico = ">="
+            elif operadorLogico.getTokenType() == 'MENOR_IGUAL':
+                operadorLogico = "<="
+            elif operadorLogico.getTokenType() == 'DIFERENTE':
+                operadorLogico = "<>"
+            else:
+                operadorLogico = operadorLogico.getTokenType()
             self.getNewSimbol()
+            return operadorLogico
         else:
-            raise RuntimeError("Erro sintatico esperando um operador logico")
+            raise RuntimeError(f"Erro sintatico esperando um operador logico na linha {self.lexico.lineCount}")
+
     def condicao(self):
         if MAKE_TREE:
             print('<condicao>')
 
-        self.expressao()
-        self.relacao()
-        self.expressao()
+        exp1Dir = self.expressao()
+        relacaoDir = self.relacao()
+        exp2Dir = self.expressao()
+        return [relacaoDir, exp1Dir, exp2Dir]
 
     def comando(self):
         if MAKE_TREE:
@@ -228,13 +242,13 @@ class Sintatico:
                         self.geraCodigo('write', variavel, '', '')
 
                 else:
-                    raise RuntimeError('Erro sintatico esperado identificador')
+                    raise RuntimeError(f'Erro sintatico esperado identificador na linha {self.lexico.lineCount}')
                 if self.currentSimbol == reserved.literais['fecha_parenteses']:
                     self.getNewSimbol()
                 else:
-                    raise RuntimeError('Erro sintatico esperado )')
+                    raise RuntimeError(f'Erro sintatico esperado ) na linha {self.lexico.lineCount}')
             else:
-                raise RuntimeError("Erro sintatico esperado (")
+                raise RuntimeError(f"Erro sintatico esperado ( na linha {self.lexico.lineCount}")
         elif self.currentSimbol == reserved.tokenTypes['ident']:
             variavel = self.currentToken
             self.getNewSimbol()
@@ -244,24 +258,28 @@ class Sintatico:
                     expressaoDir = self.expressao()
                     self.geraCodigo(':=',expressaoDir," ", variavel.getTokenValue())
                 else:
-                    raise RuntimeError('Erro semantico atribuicao de valor a variavel não declarada')
+                    raise RuntimeError(f'Erro semantico atribuicao de valor a variavel não declarada na linha {self.lexico.lineCount}')
             else:
-                raise RuntimeError('Erro sintatico esperado :=')
+                raise RuntimeError(f'Erro sintatico esperado := na linha {self.lexico.lineCount}')
         elif self.currentSimbol == reserved.words['if']:
             self.getNewSimbol()
-            self.condicao()
+            condicaoDir = self.condicao()
+            temporario = self.geraTemp()
             if self.currentSimbol == reserved.words['then']:
                 self.getNewSimbol()
+                self.geraCodigo(condicaoDir[0], condicaoDir[1], condicaoDir[2], temporario)
+                self.geraCodigo('JF', temporario, '', '')
                 self.comandos()
+                self.geraCodigo('goto', '', '', '')
                 self.pfalsa()
                 if self.currentSimbol == reserved.literais['dollar']:
                     self.getNewSimbol()
                 else:
-                    raise RuntimeError('Erro sintatico esperado $')
+                    raise RuntimeError(f'Erro sintatico esperado $ na linha {self.lexico.lineCount}')
             else:
-                raise RuntimeError('Erro sintatico esperado then')
+                raise RuntimeError(f'Erro sintatico esperado then na linha {self.lexico.lineCount}')
         else:
-            raise RuntimeError('Erro sintatico esperando comando ou identificador')
+            raise RuntimeError(f'Erro sintatico esperando comando ou identificador na linha {self.lexico.lineCount}')
                 
     def expressao(self):
         if MAKE_TREE:
@@ -305,7 +323,7 @@ class Sintatico:
         if self.currentSimbol == reserved.tokenTypes['subtracao'] or self.currentSimbol == reserved.tokenTypes['adicao']:
             self.getNewSimbol()
         else:
-            raise RuntimeError('Erro sintatico esperado + ou -')
+            raise RuntimeError(f'Erro sintatico esperado + ou - na linha {self.lexico.lineCount}')
 
     def op_mul(self):
         if MAKE_TREE:
@@ -314,7 +332,7 @@ class Sintatico:
         if self.currentSimbol == reserved.tokenTypes['multiplicacao'] or self.currentSimbol == reserved.tokenTypes['divisao']:
             self.getNewSimbol()
         else:
-            raise RuntimeError('Erro sintatico esperado * ou /')
+            raise RuntimeError(f'Erro sintatico esperado * ou / na linha {self.lexico.lineCount}')
 
     def outros_termos(self, outrosTermosEsq):
         if MAKE_TREE:
@@ -367,7 +385,7 @@ class Sintatico:
         if self.currentSimbol == reserved.tokenTypes['ident'] or self.currentSimbol == reserved.tokenTypes['numero_int'] or self.currentSimbol == reserved.tokenTypes['numero_real']:
             if self.currentSimbol == reserved.tokenTypes['ident']:
                 if not self.symbolTableContais(self.currentToken.getTokenValue()):
-                    raise RuntimeError('Erro semantico operacao matematica com variavel não declarada')
+                    raise RuntimeError(f'Erro semantico operacao matematica com variavel não declarada na linha {self.lexico.lineCount}')
                 fatorDir = self.currentToken.getTokenValue()
             
             else:
@@ -380,9 +398,9 @@ class Sintatico:
             if self.currentSimbol == reserved.literais['fecha_parenteses']:
                 self.getNewSimbol()
             else:
-                raise RuntimeError('Erro sintatico esperado )')
+                raise RuntimeError(f'Erro sintatico esperado ) na linha {self.lexico.lineCount}')
         else:
-            raise RuntimeError('Erro sintatico esperado variavel, numero: int ou real')
+            raise RuntimeError(f'Erro sintatico esperado variavel, numero: int ou real na linha {self.lexico.lineCount}')
         return fatorDir
 
     def pfalsa(self):
@@ -392,5 +410,6 @@ class Sintatico:
         if self.currentSimbol == reserved.words['else']:
             self.getNewSimbol()
             self.comandos()
+            return self.linhaQuadupla
         else:
             return ''
