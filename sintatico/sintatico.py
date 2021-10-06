@@ -3,7 +3,7 @@ from semantico.tabelaSimbolos import TabelaSimbolos
 from lexico import lexer
 from auxiliares import reservedDic as reserved
 
-DEBUG = False
+DEBUG = True
 MAKE_TREE = False
 PRINT_SYMBOLTABLE = False
 
@@ -275,6 +275,16 @@ class Sintatico:
                     raise RuntimeError(f'Erro sintatico esperado $ na linha {self.lexico.lineCount}')
             else:
                 raise RuntimeError(f'Erro sintatico esperado then na linha {self.lexico.lineCount}')
+        elif self.currentSimbol == reserved.words['while']:
+            self.getNewSimbol()
+            self.condicao()
+            if self.currentSimbol == reserved.words['do']:
+                self.getNewSimbol()
+                self.comandos()
+                if self.currentSimbol == reserved.literais['dollar']:
+                    self.getNewSimbol()
+                else:
+                    raise RuntimeError(f'Erro sintatico esperado $ na linha {self.lexico.lineCount}')
         else:
             raise RuntimeError(f'Erro sintatico esperando comando ou identificador na linha {self.lexico.lineCount}')
                 
