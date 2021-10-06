@@ -7,7 +7,7 @@ class Lexico:
         self.charArr = _charArr
         self.estado = 0
         self.lineCount = 1
-        self.reservedWords = ['program', 'begin', 'end', 'if', 'then', 'else', 'read', 'write', 'real', 'integer']
+        self.reservedWords = ['program', 'begin', 'end', 'if', 'then', 'else', 'read', 'write', 'real', 'integer', 'while', 'do']
     
     def getLine(self):
         return self.lineCount
@@ -144,6 +144,8 @@ class Lexico:
                         self.estado = 20
                     elif char == '/':
                         self.estado = 21
+                    elif char == '{':
+                        self.estado = 24
                     else:
                         self.estado = 22
                 elif self.estado == 8:
@@ -222,15 +224,46 @@ class Lexico:
                     self.estado = 0
                     return tkn
                 elif self.estado == 21:
-                    tkn = Token('DIV', self.getCurrentChar())
-                    self.estado = 0
-                    return tkn
+                    char = self.nextChar()
+                    if char == None:
+                        return None
+                    if char == '*':
+                        self.estado = 25
+                    else:
+                        tkn = Token('DIV', self.getCurrentChar())
+                        self.cursorStepBack()
+                        self.estado = 0
+                        return tkn
                 elif self.estado == 22:
                     tkn = Token(self.getCurrentChar())
                     self.estado = 0
                     return tkn
                 elif self.estado == 23:
                     self.estado = 0
+                elif self.estado == 24:
+                    char = self.nextChar()
+                    if char == None:
+                        return None
+                    if char == '}':
+                        self.estado = 0
+                    else:
+                        self.estado = 24
+                elif self.estado == 25:
+                    char = self.nextChar()
+                    if char == None:
+                        return None
+                    if char == '*':
+                        self.estado = 26
+                    else:
+                        self.estado = 25
+                elif self.estado == 26:
+                    char = self.nextChar()
+                    if char == None:
+                        return None
+                    if char == '/':
+                        self.estado = 0
+                    else:
+                        self.estado = 25
                 else:
                     raise Exception("Estado não definido no analisador lexico encerrando...")
             except Exception as err:
