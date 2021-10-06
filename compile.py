@@ -2,12 +2,12 @@ from sintatico.sintatico import Sintatico
 from lexico.lexer import Lexico
 import sys
 
-DEV = False
+DEV = True
 
 #os.system('cls')
 
 if(DEV):
-    fileDir = "D:\\DEV\\compiladores\\codigo.txt"
+    fileDir = "D:\\DEV\\compiladores\\correto2.lalg.txt"
 else:
     try:
         fileDir = sys.argv[1]
@@ -21,7 +21,6 @@ with open(fileDir, 'r', encoding='utf-8') as file:
 
 sint = Sintatico(fileToCharArr)
 sint.doSyntaxAnalise()
-
 
 """
 lex = Lexico(fileToCharArr)
