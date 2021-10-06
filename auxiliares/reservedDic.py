@@ -35,7 +35,9 @@ words = {
     'then' : 'then',
     'else' : 'else',
     'begin' : 'begin',
-    'end' : 'end'
+    'end' : 'end',
+    'while' : 'while',
+    'do' : 'do'
 
 }
 
