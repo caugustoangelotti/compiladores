@@ -262,6 +262,8 @@ class Lexico:
                         return None
                     if char == '/':
                         self.estado = 0
+                    elif char == '*':
+                        self.estado = 26
                     else:
                         self.estado = 25
                 else:
