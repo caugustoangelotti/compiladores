@@ -2,17 +2,14 @@ from semantico.simbolo import Simbolo
 from semantico.tabelaSimbolos import TabelaSimbolos
 from lexico import lexer
 from auxiliares import reservedDic as reserved
-from codigo_objeto.codObjeto import CodObjeto
 
 DEBUG = False
 MAKE_TREE = False
 PRINT_SYMBOLTABLE = False
-PRINT_COD_INTERMEDIARIO = True
 
 class Sintatico:
     def __init__(self, _charsArray):
         self.lexico = lexer.Lexico(_charsArray)
-        self.tknsArr = []
         self.currentSimbol = ""
         self.tabelaSimbolo = TabelaSimbolos()
         self.varType = ""
@@ -20,8 +17,6 @@ class Sintatico:
         self.temp = 0
         self.linhaQuadupla = -1
         self.codigoIntermediario = "<linha;operacao;arg1;arg2;result>\n"
-        self.codigoObjeto = ['INPP']
-        self.cargaComandos = []
 
 
     def populateReservedWords(self):
@@ -44,7 +39,6 @@ class Sintatico:
 
     def getNewSimbol(self):
         tkn = self.lexico.nexToken()
-        self.tknsArr.append(tkn)
         self.currentToken = tkn
         self.currentSimbol = tkn.getTokenType()
         if(DEBUG):
@@ -57,18 +51,16 @@ class Sintatico:
             self.populateReservedWords()
             self.getNewSimbol()
             if self.programa():
-
                 print('\nAnalise sintatica e semantica completada\n')
                 if PRINT_SYMBOLTABLE:
                     print('##########SYMBOL-TABLE############\n')
                     for key in self.tabelaSimbolo.symbolTable.keys():
                         print(self.tabelaSimbolo.getSymbol(key))
                     print('\n##################################\n')
-                if(PRINT_COD_INTERMEDIARIO):
-                    print('#######CODIGO_INTERMEDIARIO#######\n')
-                    print(self.codigoIntermediario)
-                    print('##################################\n')
-                #codObjeto = CodObjeto(self.tknsArr, self.tabelaSimbolo)
+
+                print('#######CODIGO_INTERMEDIARIO#######\n')
+                print(self.codigoIntermediario)
+                print('##################################\n')
         except RuntimeError as err:
             print(err)
             exit()
@@ -131,15 +123,12 @@ class Sintatico:
         else:
             return ''
 
-    #TODO: PEGAR LINHA DA QUADUPLA E RETORNO IF
     def comandos(self):
         if MAKE_TREE:
             print('<comandos>')
-        comandoDir = self.comando()
-        if not comandoDir == '':
-            self.cargaComandos.append(comandoDir) 
+
+        self.comando()
         self.mais_comandos()
-        return self.cargaComandos
 
     def mais_comandos(self):
         if MAKE_TREE:
@@ -189,7 +178,6 @@ class Sintatico:
                     self.geraCodigo('ALME', "0", "", self.currentToken.getTokenValue())
                 else:
                     self.geraCodigo('ALME', "0.0", "", self.currentToken.getTokenValue())
-                    
             self.getNewSimbol()
             self.mais_var()
         else:
@@ -248,16 +236,19 @@ class Sintatico:
                     if not self.symbolTableContais(variavel):
                         raise RuntimeError(f"Erro semantico tentando ler ou imprimir variavel não declarada na linha {self.lexico.lineCount}")
                     self.getNewSimbol()
+                    if comando == reserved.words['read']:
+                        self.geraCodigo('read', '', '', variavel)
+                    else:
+                        self.geraCodigo('write', variavel, '', '')
+
                 else:
                     raise RuntimeError(f'Erro sintatico esperado identificador na linha {self.lexico.lineCount}')
                 if self.currentSimbol == reserved.literais['fecha_parenteses']:
                     self.getNewSimbol()
-                    return f'{comando}:{variavel}'
                 else:
                     raise RuntimeError(f'Erro sintatico esperado ) na linha {self.lexico.lineCount}')
             else:
                 raise RuntimeError(f"Erro sintatico esperado ( na linha {self.lexico.lineCount}")
-
         elif self.currentSimbol == reserved.tokenTypes['ident']:
             variavel = self.currentToken
             self.getNewSimbol()
@@ -266,7 +257,6 @@ class Sintatico:
                 if self.symbolTableContais(variavel.getTokenValue()):
                     expressaoDir = self.expressao()
                     self.geraCodigo(':=',expressaoDir," ", variavel.getTokenValue())
-                    return ''
                 else:
                     raise RuntimeError(f'Erro semantico atribuicao de valor a variavel não declarada na linha {self.lexico.lineCount}')
             else:
@@ -276,38 +266,18 @@ class Sintatico:
             condicaoDir = self.condicao()
             if self.currentSimbol == reserved.words['then']:
                 self.getNewSimbol()
-                listaComandos = self.comandos()
-                self.cargaComandos = []
-                pfalsaDir = self.pfalsa()
-                self.cargaComandos = []
+                self.geraCodigo('JF', condicaoDir, '', '')
+                self.comandos()
+                self.pfalsa()
                 if self.currentSimbol == reserved.literais['dollar']:
                     self.getNewSimbol()
-                    self.geraCodigo('JF',condicaoDir, self.linhaQuadupla + len(listaComandos) + 3, '')
-                    for comando in listaComandos:
-                        op,var = comando.split(':')
-                        if op == 'read':
-                            self.geraCodigo(op,'','',var)
-                        elif op == 'write':
-                            self.geraCodigo(op,var,'','')
-                        else:
-                            pass
-                    self.geraCodigo('goto', self.linhaQuadupla + len(pfalsaDir) + 2, '', '')
-                    for comando in pfalsaDir:
-                        op,var = comando.split(':')
-                        if op == 'read':
-                            self.geraCodigo(op,'','',var)
-                        elif op == 'write':
-                            self.geraCodigo(op,var,'','')
-                        else:
-                            pass
-                    return ''
                 else:
                     raise RuntimeError(f'Erro sintatico esperado $ na linha {self.lexico.lineCount}')
             else:
                 raise RuntimeError(f'Erro sintatico esperado then na linha {self.lexico.lineCount}')
         elif self.currentSimbol == reserved.words['while']:
             self.getNewSimbol()
-            condicaoDir = self.condicao()
+            self.condicao()
             if self.currentSimbol == reserved.words['do']:
                 self.getNewSimbol()
                 self.comandos()
@@ -447,6 +417,7 @@ class Sintatico:
 
         if self.currentSimbol == reserved.words['else']:
             self.getNewSimbol()
-            return self.comandos()
+            self.geraCodigo('goto', '', '', '')
+            self.comandos()
         else:
             return ''
