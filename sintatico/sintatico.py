@@ -5,7 +5,7 @@ from auxiliares import reservedDic as reserved
 
 DEBUG = False
 MAKE_TREE = False
-PRINT_SYMBOLTABLE = False
+PRINT_SYMBOLTABLE = True
 
 class Sintatico:
     def __init__(self, _charsArray):
@@ -14,10 +14,15 @@ class Sintatico:
         self.tabelaSimbolo = TabelaSimbolos()
         self.varType = ""
         self.currentToken = None
+        self.insideIf = False
+        self.insideElse = False
+        self.insideWhile = False
+        self.cargaComandosIf = []
+        self.cargaComandosElse = []
+        self.cargaComandosWhile = []
         self.temp = 0
         self.linhaQuadupla = -1
         self.codigoIntermediario = "<linha;operacao;arg1;arg2;result>\n"
-
 
     def populateReservedWords(self):
         for keyWord in reserved.words.values():
@@ -25,7 +30,85 @@ class Sintatico:
 
     def geraTemp(self):
         self.temp += 1
-        return 't' + str(self.temp)
+        tempVar = 't' + str(self.temp)
+        self.tabelaSimbolo.addSymbol(tempVar, Simbolo(tempVar, 'real'))
+        return tempVar
+
+    def buildWhileStatement(self, _condicaoDir, arrWhileCommands):
+        self.insideWhile = False
+        relacaoDir,expressao1Dir,expressao2Dir,condicaoDir = _condicaoDir.split(':')
+        self.geraCodigo(relacaoDir,expressao1Dir,expressao2Dir,condicaoDir)
+        linhaRelacao = self.linhaQuadupla
+        self.geraCodigo('JF', condicaoDir, self.linhaQuadupla + len(arrWhileCommands) + 3, '')
+        #'+:{outrosTermosEsq}:{outrosTermos1Dir}:{outrosTermosDir}'
+        for command in arrWhileCommands:
+            op,exp1,exp2,result = command.split(':')
+            if op == 'read':
+                self.geraCodigo(op,'','',exp1)
+            elif op == 'write':
+                self.geraCodigo(op,exp1,'','')
+            elif op == '+':
+                self.geraCodigo(op,exp1,exp2,result)
+            elif op == '-':
+                self.geraCodigo(op,exp1,exp2,result)
+            elif op == '*':
+                self.geraCodigo(op,exp1,exp2,result)
+            elif op == '/':
+                self.geraCodigo(op,exp1,exp2,result)
+            #assigment
+            else:
+                self.geraCodigo(':=',exp1,'',exp2)
+
+        self.geraCodigo('goto', linhaRelacao, '','')
+        self.cargaComandosWhile = []
+        
+    def buildIfStatement(self, _condicaoDir,arrIfCommands, arrElseCommands,pfalsaDir):
+        self.insideIf = False
+        self.insideElse = False
+
+        #f'{relacaoDir}:{expressao1Dir}:{expressao2Dir}:{condicaoDir}'
+        relacaoDir,expressa1Dir,expressao2Dir,condicaoDir = _condicaoDir.split(':')
+
+        self.geraCodigo(relacaoDir,expressa1Dir,expressao2Dir,condicaoDir)
+        self.geraCodigo('JF', condicaoDir, self.linhaQuadupla + len(arrIfCommands) + 3, '')
+        for command in arrIfCommands:
+            op,exp1,exp2,result = command.split(':')
+            if op == 'read':
+                self.geraCodigo(op,'','',exp1)
+            elif op == 'write':
+                self.geraCodigo(op,exp1,'','')
+            elif op == '+':
+                self.geraCodigo(op,exp1,exp2,result)
+            elif op == '-':
+                self.geraCodigo(op,exp1,exp2,result)
+            elif op == '*':
+                self.geraCodigo(op,exp1,exp2,result)
+            elif op == '/':
+                self.geraCodigo(op,exp1,exp2,result)
+            #assigment
+            else:
+                self.geraCodigo(':=',exp1,exp2,result)
+        if not pfalsaDir == '':
+            self.geraCodigo('goto', self.linhaQuadupla + len(arrElseCommands) + 2, '', '')
+            for command in arrElseCommands:
+                op,exp1,exp2,result = command.split(':')
+                if op == 'read':
+                    self.geraCodigo(op,'','',exp1)
+                elif op == 'write':
+                    self.geraCodigo(op,exp1,'','')
+                elif op == '+':
+                    self.geraCodigo(op,exp1,exp2,result)
+                elif op == '-':
+                    self.geraCodigo(op,exp1,exp2,result)
+                elif op == '*':
+                    self.geraCodigo(op,exp1,exp2,result)
+                elif op == '/':
+                    self.geraCodigo(op,exp1,exp2,result)
+                #assigment
+                else:
+                    self.geraCodigo(':=',exp1,exp2,result)
+        self.cargaComandosElse = []
+        self.cargaComandosIf = []
 
     def symbolTableContais(self, var):
         return self.tabelaSimbolo.containsKey(var)
@@ -157,7 +240,7 @@ class Sintatico:
 
         if self.currentSimbol in reserved.tipos.values():
             if self.currentSimbol == 'integer':
-                self.varType = reserved.tokenTypes['integer']
+                self.varType = reserved.tokenTypes['real']
             else:
                 self.varType = reserved.tokenTypes['real']
 
@@ -174,10 +257,7 @@ class Sintatico:
                 raise RuntimeError('Erro semantico variavel ja declarada!!!!')
             else:
                 self.tabelaSimbolo.addSymbol(self.currentToken.getTokenValue(), Simbolo(self.currentToken.getTokenValue(), self.varType))
-                if self.varType == 'integer':
-                    self.geraCodigo('ALME', "0", "", self.currentToken.getTokenValue())
-                else:
-                    self.geraCodigo('ALME', "0.0", "", self.currentToken.getTokenValue())
+                self.geraCodigo('ALME', "0.0", "", self.currentToken.getTokenValue())
             self.getNewSimbol()
             self.mais_var()
         else:
@@ -216,12 +296,12 @@ class Sintatico:
         if MAKE_TREE:
             print('<condicao>')
 
-        exp1Dir = self.expressao()
+        expressao1Dir = self.expressao()
         relacaoDir = self.relacao()
-        exp2Dir = self.expressao()
+        expressao2Dir = self.expressao()
         condicaoDir = self.geraTemp()
-        self.geraCodigo(relacaoDir, exp1Dir, exp2Dir, condicaoDir)
-        return condicaoDir
+        #self.geraCodigo(relacaoDir, exp1Dir, exp2Dir, condicaoDir)
+        return f'{relacaoDir}:{expressao1Dir}:{expressao2Dir}:{condicaoDir}'
 
     def comando(self):
         if MAKE_TREE:
@@ -236,10 +316,17 @@ class Sintatico:
                     if not self.symbolTableContais(variavel):
                         raise RuntimeError(f"Erro semantico tentando ler ou imprimir variavel não declarada na linha {self.lexico.lineCount}")
                     self.getNewSimbol()
-                    if comando == reserved.words['read']:
-                        self.geraCodigo('read', '', '', variavel)
+                    if self.insideIf:
+                        self.cargaComandosIf.append(f'{comando}:{variavel}:any:any')
+                    elif self.insideElse:
+                        self.cargaComandosElse.append(f'{comando}:{variavel}:any:any')
+                    elif self.insideWhile:
+                        self.cargaComandosWhile.append(f'{comando}:{variavel}:any:any')
                     else:
-                        self.geraCodigo('write', variavel, '', '')
+                        if comando == reserved.words['read']:
+                            self.geraCodigo('read', '', '', variavel)
+                        else:
+                            self.geraCodigo('write', variavel, '', '')
 
                 else:
                     raise RuntimeError(f'Erro sintatico esperado identificador na linha {self.lexico.lineCount}')
@@ -256,34 +343,49 @@ class Sintatico:
                 self.getNewSimbol()
                 if self.symbolTableContais(variavel.getTokenValue()):
                     expressaoDir = self.expressao()
-                    self.geraCodigo(':=',expressaoDir," ", variavel.getTokenValue())
+                    if self.insideIf:
+                        self.cargaComandosIf.append(f'ASSIGMENT:{expressaoDir}:{variavel.getTokenValue()}:any')
+                    elif self.insideElse:
+                        self.cargaComandosElse.append(f'ASSIGMENT:{expressaoDir}:{variavel.getTokenValue()}:any')
+                    elif self.insideWhile:
+                        self.cargaComandosWhile.append(f'ASSIGMENT:{expressaoDir}:{variavel.getTokenValue()}:any')
+                    else:
+                        self.geraCodigo(':=',expressaoDir," ", variavel.getTokenValue())
                 else:
                     raise RuntimeError(f'Erro semantico atribuicao de valor a variavel não declarada na linha {self.lexico.lineCount}')
             else:
                 raise RuntimeError(f'Erro sintatico esperado := na linha {self.lexico.lineCount}')
         elif self.currentSimbol == reserved.words['if']:
+            self.insideIf = True
+            self.insideElse = False
+            self.insideWhile = False
+
             self.getNewSimbol()
             condicaoDir = self.condicao()
             if self.currentSimbol == reserved.words['then']:
                 self.getNewSimbol()
-                self.geraCodigo('JF', condicaoDir, '', '')
                 self.comandos()
-                self.pfalsa()
+                
+                pfalsaDir = self.pfalsa()
                 if self.currentSimbol == reserved.literais['dollar']:
+                    self.buildIfStatement(condicaoDir, self.cargaComandosIf,self.cargaComandosElse, pfalsaDir)
                     self.getNewSimbol()
                 else:
                     raise RuntimeError(f'Erro sintatico esperado $ na linha {self.lexico.lineCount}')
             else:
                 raise RuntimeError(f'Erro sintatico esperado then na linha {self.lexico.lineCount}')
         elif self.currentSimbol == reserved.words['while']:
+            self.insideIf = False
+            self.insideElse = False
+            self.insideWhile = True
             self.getNewSimbol()
-            self.condicao()
+            condicaoDir = self.condicao()
             if self.currentSimbol == reserved.words['do']:
                 self.getNewSimbol()
                 self.comandos()
                 if self.currentSimbol == reserved.literais['dollar']:
+                    self.buildWhileStatement(condicaoDir, self.cargaComandosWhile)
                     self.getNewSimbol()
-                    return ''
                 else:
                     raise RuntimeError(f'Erro sintatico esperado $ na linha {self.lexico.lineCount}')
         else:
@@ -356,9 +458,23 @@ class Sintatico:
             outrosTermosDir = self.geraTemp()
             outrosTermos1Dir = self.outros_termos(termoDir)
             if sinalMatematico == '+':
-                self.geraCodigo('+', outrosTermosEsq, outrosTermos1Dir, outrosTermosDir)
+                if self.insideIf:
+                    self.cargaComandosIf.append(f'+:{outrosTermosEsq}:{outrosTermos1Dir}:{outrosTermosDir}')
+                elif self.insideElse:
+                    self.cargaComandosElse.append(f'+:{outrosTermosEsq}:{outrosTermos1Dir}:{outrosTermosDir}')
+                elif self.insideWhile:
+                    self.cargaComandosWhile.append(f'+:{outrosTermosEsq}:{outrosTermos1Dir}:{outrosTermosDir}')
+                else:
+                    self.geraCodigo('+', outrosTermosEsq, outrosTermos1Dir, outrosTermosDir)
             else:
-                self.geraCodigo('-', outrosTermosEsq, outrosTermos1Dir, outrosTermosDir)
+                if self.insideIf:
+                    self.cargaComandosIf.append(f'-:{outrosTermosEsq}:{outrosTermos1Dir}:{outrosTermosDir}')
+                elif self.insideElse:
+                    self.cargaComandosElse.append(f'-:{outrosTermosEsq}:{outrosTermos1Dir}:{outrosTermosDir}')
+                elif self.insideWhile:
+                    self.cargaComandosWhile.append(f'-:{outrosTermosEsq}:{outrosTermos1Dir}:{outrosTermosDir}')
+                else:
+                    self.geraCodigo('-', outrosTermosEsq, outrosTermos1Dir, outrosTermosDir)
 
             return outrosTermosDir
         else:
@@ -378,9 +494,23 @@ class Sintatico:
             maisFatores1Dir = self.mais_fatores(fatorDir)
             maisFatoresDir = self.geraTemp()
             if sinalMatematico == '*':
-                self.geraCodigo('*', maisFatoresEsq, maisFatores1Dir, maisFatoresDir)
+                if self.insideIf:
+                    self.cargaComandosIf.append(f'*:{maisFatoresEsq}:{maisFatores1Dir}:{maisFatoresDir}')
+                elif self.insideElse:
+                    self.cargaComandosElse.append(f'*:{maisFatoresEsq}:{maisFatores1Dir}:{maisFatoresDir}')
+                elif self.insideWhile:
+                    self.cargaComandosWhile.append(f'*:{maisFatoresEsq}:{maisFatores1Dir}:{maisFatoresDir}')
+                else:
+                    self.geraCodigo('*', maisFatoresEsq, maisFatores1Dir, maisFatoresDir)
             else:
-                self.geraCodigo('/', maisFatoresEsq, maisFatores1Dir, maisFatoresDir)
+                if self.insideIf:
+                    self.cargaComandosIf.append(f'/:{maisFatoresEsq}:{maisFatores1Dir}:{maisFatoresDir}')
+                elif self.insideElse:
+                    self.cargaComandosElse.append(f'/:{maisFatoresEsq}:{maisFatores1Dir}:{maisFatoresDir}')
+                elif self.insideWhile:
+                    self.cargaComandosWhile.append(f'/:{maisFatoresEsq}:{maisFatores1Dir}:{maisFatoresDir}')
+                else:
+                    self.geraCodigo('/', maisFatoresEsq, maisFatores1Dir, maisFatoresDir)
             return maisFatoresDir
 
         else:
@@ -416,8 +546,10 @@ class Sintatico:
             print('<pfalsa>')
 
         if self.currentSimbol == reserved.words['else']:
+            self.insideIf = False
+            self.insideElse = True
+            self.insideWhile = False
             self.getNewSimbol()
-            self.geraCodigo('goto', '', '', '')
             self.comandos()
         else:
             return ''
