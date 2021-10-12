@@ -23,6 +23,7 @@ class Sintatico:
         self.temp = 0
         self.linhaQuadupla = -1
         self.codigoIntermediario = "<linha;operacao;arg1;arg2;result>\n"
+        self.codArr = []
 
     def populateReservedWords(self):
         for keyWord in reserved.words.values():
@@ -118,7 +119,9 @@ class Sintatico:
         return self.linhaQuadupla
 
     def geraCodigo(self, op, arg1, arg2,result):
-        self.codigoIntermediario += f"<{self.getQuaduplaNewLine()};{op};{arg1};{arg2};{result}>\n"
+        codigo = f"{self.getQuaduplaNewLine()};{op};{arg1};{arg2};{result}\n"
+        self.codArr.append(codigo.strip())
+        self.codigoIntermediario += codigo
 
     def getNewSimbol(self):
         tkn = self.lexico.nexToken()
@@ -144,6 +147,7 @@ class Sintatico:
                 print('#######CODIGO_INTERMEDIARIO#######\n')
                 print(self.codigoIntermediario)
                 print('##################################\n')
+                print(self.codArr)
         except RuntimeError as err:
             print(err)
             exit()
