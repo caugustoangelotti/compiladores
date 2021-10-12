@@ -21,9 +21,14 @@ class Sintatico:
         self.cargaComandosElse = []
         self.cargaComandosWhile = []
         self.temp = 0
+        self.endRel = -1
         self.linhaQuadupla = -1
         self.codigoIntermediario = "<linha;operacao;arg1;arg2;result>\n"
         self.codArr = []
+
+    def getNewEndRel(self):
+        self.endRel += 1
+        return self.endRel
 
     def populateReservedWords(self):
         for keyWord in reserved.words.values():
@@ -32,7 +37,7 @@ class Sintatico:
     def geraTemp(self):
         self.temp += 1
         tempVar = 't' + str(self.temp)
-        self.tabelaSimbolo.addSymbol(tempVar, Simbolo(tempVar, 'real'))
+        self.tabelaSimbolo.addSymbol(tempVar, Simbolo(tempVar, 'real', self.getNewEndRel()))
         return tempVar
 
     def buildWhileStatement(self, _condicaoDir, arrWhileCommands):
@@ -56,6 +61,8 @@ class Sintatico:
                 self.geraCodigo(op,exp1,exp2,result)
             elif op == '/':
                 self.geraCodigo(op,exp1,exp2,result)
+            elif op == 'UMINUS':
+                self.geraCodigo('uminus', exp1, '', result)
             #assigment
             else:
                 self.geraCodigo(':=',exp1,'',exp2)
@@ -86,6 +93,8 @@ class Sintatico:
                 self.geraCodigo(op,exp1,exp2,result)
             elif op == '/':
                 self.geraCodigo(op,exp1,exp2,result)
+            elif op == 'UMINUS':
+                self.geraCodigo('uminus', exp1, '', result)
             #assigment
             else:
                 self.geraCodigo(':=',exp1,exp2,result)
@@ -105,6 +114,8 @@ class Sintatico:
                     self.geraCodigo(op,exp1,exp2,result)
                 elif op == '/':
                     self.geraCodigo(op,exp1,exp2,result)
+                elif op == 'UMINUS':
+                    self.geraCodigo('uminus', exp1, '', result)
                 #assigment
                 else:
                     self.geraCodigo(':=',exp1,exp2,result)
@@ -131,7 +142,6 @@ class Sintatico:
             tknValue = tkn.getTokenValue()
             print(f'type: {self.currentSimbol}  valor: {tknValue if tknValue != None else ""}')
         return self.currentSimbol
-
     def doSyntaxAnalise(self):
         try:
             self.populateReservedWords()
@@ -147,7 +157,6 @@ class Sintatico:
                 print('#######CODIGO_INTERMEDIARIO#######\n')
                 print(self.codigoIntermediario)
                 print('##################################\n')
-                print(self.codArr)
         except RuntimeError as err:
             print(err)
             exit()
@@ -260,7 +269,7 @@ class Sintatico:
             if self.symbolTableContais(self.currentToken.getTokenValue()):
                 raise RuntimeError('Erro semantico variavel ja declarada!!!!')
             else:
-                self.tabelaSimbolo.addSymbol(self.currentToken.getTokenValue(), Simbolo(self.currentToken.getTokenValue(), self.varType))
+                self.tabelaSimbolo.addSymbol(self.currentToken.getTokenValue(), Simbolo(self.currentToken.getTokenValue(), self.varType, self.getNewEndRel()))
                 self.geraCodigo('ALME', "0.0", "", self.currentToken.getTokenValue())
             self.getNewSimbol()
             self.mais_var()
@@ -414,7 +423,14 @@ class Sintatico:
             termoDir = self.geraTemp()
             maisFatores1Dir = self.mais_fatores(fatorDir)
             #self.mais_fatores(termoDir)
-            self.geraCodigo('uminus', fatorDir, '', termoDir)
+            if self.insideIf:
+                self.cargaComandosIf.append(f'UMINUS:{fatorDir}:any:{termoDir}')
+            elif self.insideElse:
+                self.cargaComandosElse.append(f'UMINUS:{fatorDir}:any:{termoDir}')
+            elif self.insideWhile:
+                self.cargaComandosWhile.append(f'UMINUS:{fatorDir}:any:{termoDir}')
+            else:
+                self.geraCodigo('uminus', fatorDir, '', termoDir)
             return termoDir
         else:
             fatorDir = self.fator()
