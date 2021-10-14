@@ -1,11 +1,13 @@
 from semantico.simbolo import Simbolo
 from semantico.tabelaSimbolos import TabelaSimbolos
+from maqHipo.codigoHipotetico import CodigoHipotetico
 from lexico import lexer
 from auxiliares import reservedDic as reserved
 
 DEBUG = False
 MAKE_TREE = False
-PRINT_SYMBOLTABLE = True
+PRINT_SYMBOLTABLE = False
+PRINT_COD_INTERMEDIARIO = True
 
 class Sintatico:
     def __init__(self, _charsArray):
@@ -25,6 +27,7 @@ class Sintatico:
         self.linhaQuadupla = -1
         self.codigoIntermediario = "<linha;operacao;arg1;arg2;result>\n"
         self.codArr = []
+        self.arrTemporarios = []
 
     def getNewEndRel(self):
         self.endRel += 1
@@ -37,6 +40,7 @@ class Sintatico:
     def geraTemp(self):
         self.temp += 1
         tempVar = 't' + str(self.temp)
+        self.arrTemporarios.append(tempVar)
         self.tabelaSimbolo.addSymbol(tempVar, Simbolo(tempVar, 'real', self.getNewEndRel()))
         return tempVar
 
@@ -153,10 +157,12 @@ class Sintatico:
                     for key in self.tabelaSimbolo.symbolTable.keys():
                         print(self.tabelaSimbolo.getSymbol(key))
                     print('\n##################################\n')
+                if PRINT_COD_INTERMEDIARIO:
+                    print('#######CODIGO_INTERMEDIARIO#######\n')
+                    print(self.codigoIntermediario)
+                    print('##################################\n')
+                codHipo = CodigoHipotetico(self.tabelaSimbolo, self.codArr, self.arrTemporarios)
 
-                print('#######CODIGO_INTERMEDIARIO#######\n')
-                print(self.codigoIntermediario)
-                print('##################################\n')
         except RuntimeError as err:
             print(err)
             exit()
