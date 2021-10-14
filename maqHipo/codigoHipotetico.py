@@ -34,7 +34,7 @@ class CodigoHipotetico:
                 if linha == _target:
                     return commandsLen
         else:
-            for code in reversed(arr):
+            for code in arr:
                 linha,op,arg1,arg2,result = code.split(';')
                 if op == 'uminus' or op == 'read' or op == 'write' or op == ':=':
                     commandsLen += 2
