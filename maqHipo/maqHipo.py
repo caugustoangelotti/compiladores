@@ -4,7 +4,7 @@ class MaqHipo:
     def __init__(self,_codArr) -> None:
         self.codArr = _codArr
         self.dataArr = []
-        self.execMemory = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+        self.execMemory = [0.0 for x in range(1000)]
         self.s = 0
         self.i = 0
         self.stripCodArr()
