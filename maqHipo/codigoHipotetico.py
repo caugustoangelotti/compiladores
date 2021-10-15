@@ -15,6 +15,7 @@ class CodigoHipotetico:
         with open('output.maqhipo.txt', 'w') as file:
             for line in self.codHipoteticoArr:
                 file.write(f'{line.strip()}\n')
+        return True
     def is_digit(self, str):
         return str in string.digits
 
@@ -53,9 +54,9 @@ class CodigoHipotetico:
 
     def objectCodeToHipoteticCode(self):
         self.codHipoteticoArr.append('INPP')
-        for temp in self.arrTemporarios:
+        """ for temp in self.arrTemporarios:
             self.codHipoteticoArr.append('ALME 0.0')
-            self.dataArr.append(0.0)
+            self.dataArr.append(0.0) """
         for i,instrucao in enumerate(self.codigoObjeto):
             linha,ins,arg1,arg2,result = instrucao.split(';')
             if ins == 'ALME':
@@ -290,11 +291,11 @@ class CodigoHipotetico:
                     self.codHipoteticoArr.append(f'CRVL {self.getVarRelativePos(arg2)}')
                     self.codHipoteticoArr.append(f'CPMI')
             elif ins == 'JF':
-                self.codHipoteticoArr.append(f'DSVF {len(self.codHipoteticoArr) + self.countCommands(ins,arg2,self.codigoObjeto[i + 1:])}')
+                self.codHipoteticoArr.append(f'DSVF {(len(self.codHipoteticoArr) + self.countCommands(ins,arg2,self.codigoObjeto[i + 1:])) - 1}')
             elif ins == 'goto':
                 if linha > arg1:
-                    self.codHipoteticoArr.append(f'DSVI {self.logicLine + 1}')
+                    self.codHipoteticoArr.append(f'DSVI {self.logicLine}')
                 else:
-                    self.codHipoteticoArr.append(f'DSVI {(len(self.codHipoteticoArr) + self.countCommands(ins,arg1,self.codigoObjeto[i + 1:])) - 1}')
+                    self.codHipoteticoArr.append(f'DSVI {(len(self.codHipoteticoArr) + self.countCommands(ins,arg1,self.codigoObjeto[i + 1:])) - 2}')
 
         self.codHipoteticoArr.append('PARA')
