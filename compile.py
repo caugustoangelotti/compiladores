@@ -1,5 +1,6 @@
 from sintatico.sintatico import Sintatico
 from lexico.lexer import Lexico
+from maqHipo.maqHipo import MaqHipo
 import sys
 
 DEV = True
@@ -22,6 +23,11 @@ with open(fileDir, 'r', encoding='utf-8') as file:
 sint = Sintatico(fileToCharArr)
 sint.doSyntaxAnalise()
 
+with open('output.maqhipo.txt', 'r', encoding='utf-8') as file:
+    hipoteticoArr = file.readlines()
+
+maqHipo = MaqHipo(hipoteticoArr)
+maqHipo.execCode()
 """
 lex = Lexico(fileToCharArr)
 
