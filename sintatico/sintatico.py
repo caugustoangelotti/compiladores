@@ -162,6 +162,9 @@ class Sintatico:
                     print(self.codigoIntermediario)
                     print('##################################\n')
                 codHipo = CodigoHipotetico(self.tabelaSimbolo, self.codArr, self.arrTemporarios)
+                if codHipo:
+                    print('\n#####CODIGO_HIPOTETICO_GERADO####\n')
+                    print('###########EXECUTANDO############\n')
 
         except RuntimeError as err:
             print(err)
